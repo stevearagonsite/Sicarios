@@ -8,6 +8,8 @@ using UnityEngine;
 public abstract class BaseAgent : MonoBehaviour{
     protected CharacterController _controller;
     protected MeshRenderer _meshRenderer;
+    protected float _life = 100;
+    
     public virtual float MovementSpeed { get; set; }
     protected void Awake() {
         _controller = GetComponent<CharacterController>();
