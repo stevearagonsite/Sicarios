@@ -64,7 +64,7 @@ public class ConnectorWaypoints : MonoBehaviour{
         }
 
         if (!HasConnection) {
-            Debug.LogWarning($"The all connectors are not exist in {this.gameObject.name}");
+            // Debug.LogWarning($"The all connectors are not exist in {this.gameObject.name}");
             return;
         }
         
@@ -132,10 +132,10 @@ public class ConnectorWaypoints : MonoBehaviour{
         var positionsToDisconnect = toDisconnect.GetConnectionsByPosition(negativePosition);
 
         if (myPositionsToDisconnect == null || positionsToDisconnect == null) {
-            Debug.LogWarning($"The connection is not possible has a value null in {this.gameObject.name}.\n" +
-                           $"myPositionsToDisconnect: {myPositionsToDisconnect == null}\n" +
-                           $"positionsToDisconnect: {myPositionsToDisconnect == null}."
-                           );
+            // Debug.LogWarning($"The connection is not possible has a value null in {this.gameObject.name}.\n" +
+            //                $"myPositionsToDisconnect: {myPositionsToDisconnect == null}\n" +
+            //                $"positionsToDisconnect: {myPositionsToDisconnect == null}."
+            //                );
             return;
         }
 

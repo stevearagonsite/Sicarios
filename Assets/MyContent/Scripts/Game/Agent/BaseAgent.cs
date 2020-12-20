@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(GridEntity))]
 public abstract class BaseAgent : MonoBehaviour{
     protected CharacterController _controller;
     protected MeshRenderer _meshRenderer;

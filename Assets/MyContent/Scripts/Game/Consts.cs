@@ -14,5 +14,9 @@ namespace MyContent.Scripts{
         public static readonly Color AGENT_PERSON_COLOR = Color.white;
         public const float AGENT_PERSON_MIN_MOVEMENT_SPEED = 1;
         public const float AGENT_PERSON_MAX_MOVEMENT_SPEED = 5;
+        
+        public static readonly Color AGENT_TARGET_COLOR = Color.green;
+        public const float AGENT_TARGET_MIN_MOVEMENT_SPEED = 1;
+        public const float AGENT_TARGET_MAX_MOVEMENT_SPEED = 5;
     }
 }

@@ -8,7 +8,7 @@ public class AgentDetective: BaseAgent{
     private Coroutine _coroutine;
 
     private void Start() {
-        _meshRenderer.material.color = Consts.AGENT_SICARIO_COLOR;
+        _meshRenderer.material.color = Consts.AGENT_DETECTIVE_COLOR;
 
         var idle = new State<DetectiveActions>("Idle");
         var pursuit = new State<DetectiveActions>("Pursuit");

@@ -5,6 +5,6 @@ using UnityEngine;
 
 public class AgentTarget : BaseAgent{
     private void Start() {
-        _meshRenderer.material.color = Consts.AGENT_SICARIO_COLOR;
+        _meshRenderer.material.color = Consts.AGENT_TARGET_COLOR;
     }
 }

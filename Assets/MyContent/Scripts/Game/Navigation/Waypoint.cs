@@ -10,9 +10,9 @@ public class Waypoint : MonoBehaviour{
     void Start() {
         //Make bidirectional
         foreach (var wp in adyacent) {
-            if (wp != null && wp.adyacent != null) {
-                if (!wp.adyacent.Contains(this))
-                    wp.adyacent.Add(this);
+            if (wp == null || wp.adyacent == null) continue;
+            if (!wp.adyacent.Contains(this)) {
+                wp.adyacent.Add(this);
             }
         }
 
