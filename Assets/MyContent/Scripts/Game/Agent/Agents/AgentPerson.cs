@@ -13,20 +13,27 @@ public class AgentPerson : BaseAgent{
 
     public ThinkDelegateDetective randomWalk = ThinkingDetective.RandomWalk;
     private Coroutine _coroutine;
-    EventFSM<PersonActions> _fsm;
+    private EventFSM<PersonActions> _fsm;
+    private TerrainChecker _terrainChecker;
 
     private void Start() {
+        _terrainChecker = GetComponentInChildren<TerrainChecker>();
         _meshRenderer.material.color = Consts.AGENT_PERSON_COLOR;
 
         var idle = new State<PersonActions>("Idle");
         var reportSicario = new State<PersonActions>("ReportSicario");
         var dead = new State<PersonActions>("Dead");
 
+        idle.SetTransition(PersonActions.Idle, idle);
         idle.SetTransition(PersonActions.Dead, dead);
         idle.SetTransition(PersonActions.ReportSicario, reportSicario);
 
+        reportSicario.SetTransition(PersonActions.ReportSicario, reportSicario);
         reportSicario.SetTransition(PersonActions.Dead, dead);
         reportSicario.SetTransition(PersonActions.Idle, idle);
+
+        reportSicario.SetTransition(PersonActions.Idle, idle);
+        reportSicario.SetTransition(PersonActions.Dead, dead);
 
         // Dead set
         idle.OnEnter += OnDead;
@@ -59,16 +66,21 @@ public class AgentPerson : BaseAgent{
     }
 
     public void OnRandomMove() {
-        Debug.Log("on Idle");
         _coroutine = StartCoroutine(RandomWalk());
     }
 
     public void OffRandomMove() {
-        Debug.Log("off Idle");
         _coroutine = StartCoroutine(RandomWalk());
     }
 
     public void WalkForward() {
+        if (_terrainChecker.isTerrain) {
+            // TODO: Pending create evade obstacles
+            // transform.eulerAngles += new Vector3(0, Random.Range(90, -90), 0);
+            // _terrainChecker.isTerrain = false;
+            return;
+        }
+
         transform.position += transform.forward * Time.deltaTime * MovementSpeed;
     }
 
@@ -78,19 +90,5 @@ public class AgentPerson : BaseAgent{
             randomWalk((BaseAgent) this);
             yield return new WaitForSeconds(time);
         }
-    }
-
-    public void OnDead() {
-        // Hotfix
-        if (_life > 0) return;
-
-        _meshRenderer.material.color = Consts.AGENT_DEAD_COLOR;
-        Destroy(GetComponent<BoxCollider>());
-        StartCoroutine("DestroyAgent");
-    }
-
-    private IEnumerator DestroyAgent() {
-        yield return new WaitForSeconds(1);
-        Destroy(this.gameObject);
     }
 }

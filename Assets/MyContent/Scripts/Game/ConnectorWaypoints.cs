@@ -152,15 +152,15 @@ public class ConnectorWaypoints : MonoBehaviour{
         }
     }
 
-    private void OnDrawGizmos() {
-        Gizmos.color = Color.red;
-
-        foreach (var toConnect in _allConnections) {
-            if (toConnect != null) {
-                Gizmos.DrawLine(transform.position + Vector3.up, toConnect.transform.position + Vector3.up);
-            }
-        }
-    }
+    // private void OnDrawGizmos() {
+    //     Gizmos.color = Color.red;
+    //
+    //     foreach (var toConnect in _allConnections) {
+    //         if (toConnect != null) {
+    //             Gizmos.DrawLine(transform.position + Vector3.up, toConnect.transform.position + Vector3.up);
+    //         }
+    //     }
+    // }
 }
 
 public enum PositionConnect{

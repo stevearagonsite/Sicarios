@@ -27,4 +27,12 @@ namespace MyContent.Scripts{
         
         public static readonly Color AGENT_DEAD_COLOR = Color.black;
     }
+    
+    public static class Layers{
+        public const int TERRAIN_NUM_LAYER = 8;
+        public const string TERRAIN_LABEL_LAYER = "Terrain";
+        public const int AGENT_NUM_LAYER  = 11;
+        public const string AGENT_LABEL_LAYER  = "Agent";
+    }
+
 }
