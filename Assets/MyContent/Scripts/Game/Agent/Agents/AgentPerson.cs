@@ -14,10 +14,8 @@ public class AgentPerson : BaseAgent{
     public ThinkDelegateDetective randomWalk = ThinkingDetective.RandomWalk;
     private Coroutine _coroutine;
     private EventFSM<PersonActions> _fsm;
-    private TerrainChecker _terrainChecker;
 
     private void Start() {
-        _terrainChecker = GetComponentInChildren<TerrainChecker>();
         _meshRenderer.material.color = Consts.AGENT_PERSON_COLOR;
 
         var idle = new State<PersonActions>("Idle");
@@ -71,17 +69,6 @@ public class AgentPerson : BaseAgent{
 
     public void OffRandomMove() {
         _coroutine = StartCoroutine(RandomWalk());
-    }
-
-    public void WalkForward() {
-        if (_terrainChecker.isTerrain) {
-            // TODO: Pending create evade obstacles
-            // transform.eulerAngles += new Vector3(0, Random.Range(90, -90), 0);
-            // _terrainChecker.isTerrain = false;
-            return;
-        }
-
-        transform.position += transform.forward * Time.deltaTime * MovementSpeed;
     }
 
     public virtual IEnumerator RandomWalk() {

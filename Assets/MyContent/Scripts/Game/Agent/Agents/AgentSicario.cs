@@ -95,10 +95,6 @@ public class AgentSicario : BaseAgent{
     public void OnRandomMove() { _coroutine = StartCoroutine(RandomWalk()); }
     public void OffRandomMove() { _coroutine = StartCoroutine(RandomWalk()); }
 
-    public void WalkForward() {
-        transform.position += transform.forward * Time.deltaTime * MovementSpeed;
-    }
-    
     public virtual IEnumerator RandomWalk() {
         while (true) {
             var time = Random.Range(1f, 5f);

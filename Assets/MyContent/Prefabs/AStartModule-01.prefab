@@ -496,8 +496,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6055ac993da5f645b316e577aecb222, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  position: 0
-  toConnect: {fileID: 0}
+  toConnectRight: {fileID: 0}
+  toConnectLeft: {fileID: 0}
+  toConnectFront: {fileID: 0}
+  toConnectBack: {fileID: 0}
   right:
   - {fileID: 3254696355165477450}
   - {fileID: 3254696355540755669}
