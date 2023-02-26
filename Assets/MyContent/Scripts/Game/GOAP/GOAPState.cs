@@ -55,9 +55,11 @@ public class GOAPState{
     public override string ToString() {
         var str = "";
         foreach (var kv in values.OrderBy(x => x.Key)) {
-            str += (string.Format("{0:12} : {1}\n", kv.Key, kv.Value));
+            str += string.Format("{0:12} : {1}\n", kv.Key, kv.Value);
         }
 
-        return ("--->" + (generatingAction != null ? generatingAction.name : "NULL") + "\n" + str);
+        var response = generatingAction != null ? generatingAction.name : "NULL";
+
+        return response + "\n" + "----------------------------" + "\n" + str;
     }
 }

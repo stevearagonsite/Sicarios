@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using Debug = Logger.Debug;
 
 public class AStarNormal<Node> where Node : class{
     public class Arc{
@@ -44,11 +45,7 @@ public class AStarNormal<Node> where Node : class{
             var candidate = state.open.OrderBy(x => state.fs[x]).First();
             state.current = candidate;
 
-            // TODO: Comment this
-            // DebugGoap(state);
-
             if (satisfies(candidate)) {
-                Utils.Log("SATISFIED"); // TODO: Comment this
                 state.finished = true; // Has been found the goal!!!
             }
 
@@ -84,4 +81,5 @@ public class AStarNormal<Node> where Node : class{
 
         return seq;
     }
+
 }

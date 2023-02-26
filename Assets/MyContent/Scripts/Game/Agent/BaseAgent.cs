@@ -13,8 +13,8 @@ public abstract class BaseAgent : MonoBehaviour{
     public CircleQuerier radiusQuerier;
     public GridEntity _gridEntity;
     
-
     public virtual float MovementSpeed { get; set; }
+    
     protected void Awake() {
         _meshRenderer = GetComponent<MeshRenderer>();
         _terrainChecker = GetComponentInChildren<TerrainChecker>();
