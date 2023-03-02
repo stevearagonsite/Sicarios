@@ -1,21 +1,22 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GOAPAction{
-    public Dictionary<string, bool> preconditions { get; private set; }
-    public Dictionary<string, bool> effects { get; private set; }
+public class GOAPActionDelegate{
+    public Dictionary<string, Delegate> preconditions { get; private set; }
+    public Dictionary<string, Delegate> effects { get; private set; }
     public string name { get; private set; }
     public float cost { get; private set; }
 
-    public GOAPAction(string name) {
+    public GOAPActionDelegate(string name) {
         this.name = name;
         cost = 1f;
-        preconditions = new Dictionary<string, bool>();
-        effects = new Dictionary<string, bool>();
+        preconditions = new Dictionary<string, Delegate>();
+        effects = new Dictionary<string, Delegate>();
     }
 
-    public GOAPAction Cost(float cost) {
+    public GOAPActionDelegate Cost(float cost) {
         if (cost < 1f) {
             //Costs < 1f make the heuristic non-admissible. h() could overestimate and create sub-optimal results.
             //https://en.wikipedia.org/wiki/A*_search_algorithm#Properties
@@ -26,12 +27,13 @@ public class GOAPAction{
         return this;
     }
 
-    public GOAPAction Pre(string s, bool value) {
+    public GOAPActionDelegate Pre(string s, Delegate value) {
         preconditions[s] = value;
         return this;
     }
     
-    public GOAPAction Effect(string s, bool value) {
+
+    public GOAPActionDelegate Effect(string s, Delegate value) {
         effects[s] = value;
         return this;
     }
