@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class GOAPActionDelegate{
-    public Dictionary<string, Delegate> preconditions { get; private set; }
-    public Dictionary<string, Delegate> effects { get; private set; }
+    public Dictionary<string, Func<GOAPStateDelegate, bool>> preconditions { get; private set; }
+    public Dictionary<string, Func<GOAPStateDelegate, GOAPStateDelegate>> effects { get; private set; }
     public string name { get; private set; }
     public float cost { get; private set; }
 
     public GOAPActionDelegate(string name) {
         this.name = name;
         cost = 1f;
-        preconditions = new Dictionary<string, Delegate>();
-        effects = new Dictionary<string, Delegate>();
+        preconditions = new Dictionary<string, Func<GOAPStateDelegate, bool>>();
+        effects = new Dictionary<string, Func<GOAPStateDelegate, GOAPStateDelegate>>();
     }
 
     public GOAPActionDelegate Cost(float cost) {
@@ -26,14 +27,18 @@ public class GOAPActionDelegate{
         this.cost = cost;
         return this;
     }
+    
+    public bool ValidatePreconditions(GOAPStateDelegate state) {
+        return preconditions.All(kvp => kvp.Value(state));
+    }
 
-    public GOAPActionDelegate Pre(string s, Delegate value) {
+    public GOAPActionDelegate Pre(string s, Func<GOAPStateDelegate, bool> value) {
         preconditions[s] = value;
         return this;
     }
     
 
-    public GOAPActionDelegate Effect(string s, Delegate value) {
+    public GOAPActionDelegate Effect(string s, Func<GOAPStateDelegate, GOAPStateDelegate> value) {
         effects[s] = value;
         return this;
     }
