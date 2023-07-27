@@ -12,7 +12,7 @@ Modo psicopata = Menos costo matar
 
 public class GoapMiniTest : MonoBehaviour {
     private IEnumerable<GOAPActionDelegate> plan;
-    private int securityStopWatch = 200;
+    private int securityStopWatch = 400;
 
     public static IEnumerable<GOAPAction> GoapRun(GOAPState from, GOAPState to, IEnumerable<GOAPAction> actions) {
         int watchdog = 150;
@@ -118,9 +118,6 @@ public class GoapMiniTest : MonoBehaviour {
                                "(Step: " + act.step + ")";
             Debug.Log(act + "----------------------------" + stringValues);
         }
-
-        Debug.LogColor("WATCHDOG " + securityStopWatch, "green");
-
         this.plan = seq.Skip(1).Select(x => x.generatingAction);
     }
     
@@ -303,8 +300,7 @@ public class GoapMiniTest : MonoBehaviour {
             new GOAPActionDelegate("RestInTheCommune")
                 .Pre(VAR_VISIBILITY, gs => gs.GetValueFloat(VAR_VISIBILITY) > 0f)
                 .Effect(VAR_VISIBILITY, gs => gs.SetValueFloat(VAR_VISIBILITY, 0f))
-                .Effect(VAR_HP, gs => gs.SetValueFloat(VAR_HP, 100F))
-                .Cost(2),
+                .Effect(VAR_HP, gs => gs.SetValueFloat(VAR_HP, 100F)),
 
             new GOAPActionDelegate("StudyLocations")
                 .Pre(VAR_TARGET_LOCATION, gs => !gs.GetValueBool(VAR_TARGET_LOCATION))
@@ -313,11 +309,11 @@ public class GoapMiniTest : MonoBehaviour {
                     if (gs.GetValueInt(VAR_STUDY_LOCATION) < VALUE_STUDY) return gs;
                     gs = gs.SetValueBool(VAR_TARGET_LOCATION, true);
                     return gs.SetValueInt(VAR_STUDY_LOCATION, 0);
-                }).Cost(1),
+                }),
 
             new GOAPActionDelegate("StealMoney")
                 .Pre(VAR_VISIBILITY, gs => gs.GetValueFloat(VAR_VISIBILITY) < 60)
-                .Effect(VAR_MONEY, gs => gs.SetValueInt(VAR_MONEY, 500 + gs.GetValueInt(VAR_MONEY)))
+                .Effect(VAR_MONEY, gs => gs.SetValueInt(VAR_MONEY, 1000 + gs.GetValueInt(VAR_MONEY)))
                 .Effect(VAR_VISIBILITY, gs => gs.SetValue(VAR_VISIBILITY, 10f + gs.GetValueFloat(VAR_VISIBILITY)))
                 .Cost(2),
 
@@ -384,5 +380,6 @@ public class GoapMiniTest : MonoBehaviour {
         to.SetCaseFromValue(VAR_MONEY, (gs) => gs.GetValueInt(VAR_MONEY) >= 500);
         to.SetCaseFromValue(VAR_WEAPON, (gs) => gs.GetValueString(VAR_WEAPON) == "sniper");
         to.SetCaseFromValue(VAR_TARGET_LOCATION, (gs) => gs.GetValueBool(VAR_TARGET_LOCATION));
+        to.SetCaseFromValue(VAR_DEAD_TARGET, (gs) => gs.GetValueBool(VAR_DEAD_TARGET));
     }
 }
