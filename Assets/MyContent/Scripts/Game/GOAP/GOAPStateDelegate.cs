@@ -6,6 +6,7 @@ using System.Linq;
 
 public class GOAPStateDelegate{
     public Dictionary<string, object> values = new Dictionary<string, object>();
+    public Dictionary<string, Func<GOAPStateDelegate, bool>> caseFromValues = new Dictionary<string, Func<GOAPStateDelegate, bool>>();
     public GOAPActionDelegate generatingAction = null;
     public int step = 0;
 
@@ -24,6 +25,11 @@ public class GOAPStateDelegate{
         }
 
         generatingAction = gen;
+    }
+    
+    public GOAPStateDelegate SetCaseFromValue(string key, Func<GOAPStateDelegate, bool> validationCase){
+        values[key] = validationCase;
+        return this;
     }
     
     public GOAPStateDelegate SetValue(string key, object value){
@@ -123,14 +129,19 @@ public class GOAPStateDelegate{
     
     // this is third one 'Equals'
 
+    // public override string ToString() {
+    //     var str = "";
+    //     foreach (var kv in values.OrderBy(x => x.Key)) {
+    //         str += string.Format("{0:12} : {1}\n", kv.Key, kv.Value);
+    //     }
+    //
+    //     var response = generatingAction != null ? generatingAction.name : "NULL";
+    //
+    //     return response + "\n" + "----------------------------" + "\n" + str;
+    // }
+    //
+    
     public override string ToString() {
-        var str = "";
-        foreach (var kv in values.OrderBy(x => x.Key)) {
-            str += string.Format("{0:12} : {1}\n", kv.Key, kv.Value);
-        }
-
-        var response = generatingAction != null ? generatingAction.name : "NULL";
-
-        return response + "\n" + "----------------------------" + "\n" + str;
+        return generatingAction != null ? generatingAction.name : "NULL";
     }
 }

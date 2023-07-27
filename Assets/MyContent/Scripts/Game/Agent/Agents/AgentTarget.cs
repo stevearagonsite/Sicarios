@@ -6,5 +6,6 @@ using UnityEngine;
 public class AgentTarget : BaseAgent{
     private void Start() {
         _meshRenderer.material.color = Consts.AGENT_TARGET_COLOR;
+        gameObject.name = "Target";
     }
 }

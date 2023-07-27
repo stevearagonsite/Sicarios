@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -10,18 +11,11 @@ Modo psicopata = Menos costo matar
 */
 
 public class GoapMiniTest : MonoBehaviour {
-    const string VAR_GUARDS_AMOUNT = "guardsAmount";
-    const string VAR_TOTAL_GUARDS = "totalGuards";
-    const string VAR_VISIBILITY = "visibility";
-    const string VAR_HP = "hp";
-    const string VAR_TARGET_LOCATION = "targetLocation";
-    const string VAR_STUDY_LOCATION = "studyLocation";
-    const string VAR_TOTAL_LOCATIONS = "totalLocations";
-    const string VAR_WEAPON = "weapon";
-    const string VAR_MONEY = "money";
-    
+    private IEnumerable<GOAPActionDelegate> plan;
+    private int securityStopWatch = 150;
+
     public static IEnumerable<GOAPAction> GoapRun(GOAPState from, GOAPState to, IEnumerable<GOAPAction> actions) {
-        int watchdog = 200;
+        int watchdog = 150;
         Func<GOAPState, GOAPState, float> heuristic = (curr, goal) => goal.values.Count(kv => !kv.In(curr.values));
 
         var seq = AStarNormal<GOAPState>.Run(
@@ -68,42 +62,46 @@ public class GoapMiniTest : MonoBehaviour {
         return seq.Skip(1).Select(x => x.generatingAction);
     }
 
-
-    public static IEnumerable<GOAPActionDelegate> GoapRunDelegate(GOAPStateDelegate from, GOAPStateDelegate to,
-        IEnumerable<GOAPActionDelegate> actions) {
-        int watchdog = 300;
+    public IEnumerator GoapRunDelegate(
+        GOAPStateDelegate from,
+        GOAPStateDelegate to,
+        IEnumerable<GOAPActionDelegate> actions
+    ) {
         Func<GOAPStateDelegate, GOAPStateDelegate, float> heuristic = (curr, goal) => {
             return goal.values.Count(goalKv => goalKv.Value != curr.values[goalKv.Key]);
         };
-
-        var seq = AStarNormal<GOAPStateDelegate>.Run(
+        
+        yield return AStarTimeSlice<GOAPStateDelegate>.Run(
             from,
             to,
             heuristic,
             curr => to.values.All(kv => kv.In(curr.values)),
+            // curr => to.caseFromValues.All(kv => kv.Value(curr)),
             curr => {
-                if (watchdog == 0) return Enumerable.Empty<AStarNormal<GOAPStateDelegate>.Arc>();
+                if (securityStopWatch == 0) {
+                    return Enumerable.Empty<AStarTimeSlice<GOAPStateDelegate>.Arc>();
+                }
 
-                watchdog--;
+                securityStopWatch--;
 
                 return actions
                     .Where(action => action.ValidatePreconditions(curr))
-                    .Aggregate(new FList<AStarNormal<GOAPStateDelegate>.Arc>(), (possibleList, action) => {
+                    .Aggregate(new FList<AStarTimeSlice<GOAPStateDelegate>.Arc>(), (possibleList, action) => {
                         var newState = new GOAPStateDelegate(curr);
                         newState.ApplyEffects(action.effects);
                         newState.generatingAction = action;
                         newState.step = curr.step + 1;
-                        return possibleList + new AStarNormal<GOAPStateDelegate>.Arc(newState, action.cost);
+                        return possibleList + new AStarTimeSlice<GOAPStateDelegate>.Arc(newState, action.cost);
                     });
             });
+        var seq = AStarTimeSlice<GOAPStateDelegate>.GetSequence();
 
         Debug.LogColor("PLAN", "green");
-        Debug.LogColor("watchdog: " + watchdog, "green");
+        Debug.LogColor("watchdog: " + securityStopWatch, "green");
         if (seq == null) {
             Debug.LogError("impossible to plan");
-            return null;
+            yield break;
         }
-
         var costSoFar = 0f;
         foreach (var act in seq.Skip(1)) {
             var heuristicValue = heuristic(act, to);
@@ -116,9 +114,13 @@ public class GoapMiniTest : MonoBehaviour {
             Debug.Log(act + "----------------------------" + stringValues);
         }
 
-        Debug.LogColor("WATCHDOG " + watchdog, "green");
+        Debug.LogColor("WATCHDOG " + securityStopWatch, "green");
 
-        return seq.Skip(1).Select(x => x.generatingAction);
+        this.plan = seq.Skip(1).Select(x => x.generatingAction);
+    }
+    
+    public int GetSecurityStopWatch() {
+        return securityStopWatch;
     }
 
     void Start() {
@@ -129,7 +131,19 @@ public class GoapMiniTest : MonoBehaviour {
 
 
         ExampleGOAP03(out var actions, out var from, out var to);
-        var plan = GoapRunDelegate(from, to, actions);
+        StartCoroutine(GoapRunDelegate(from, to, actions));
+    }
+    
+    void Update() {
+        if (Input.GetKeyDown(KeyCode.Space)) {
+            Debug.LogColor("SPACE", "green");
+            Debug.Log("PLAN STEPS: " + securityStopWatch);
+            if (plan == null) return;
+            foreach (var act in plan) {
+                Debug.LogColor("PLAN", "green");
+                Debug.Log(act);
+            }
+        }
     }
 
     void ExampleGOAP01(out List<GOAPAction> actions, out GOAPState from, out GOAPState to) {
@@ -254,6 +268,16 @@ public class GoapMiniTest : MonoBehaviour {
 
     void ExampleGOAP03(out List<GOAPActionDelegate> actions, out GOAPStateDelegate from, out GOAPStateDelegate to) {
         from = new GOAPStateDelegate();
+        const string VAR_GUARDS_AMOUNT = "guardsAmount";
+        const string VAR_TOTAL_GUARDS = "totalGuards";
+        const string VAR_VISIBILITY = "visibility";
+        const string VAR_HP = "hp";
+        const string VAR_TARGET_LOCATION = "targetLocation";
+        const string VAR_STUDY_LOCATION = "studyLocation";
+        const string VAR_TOTAL_LOCATIONS = "totalLocations";
+        const string VAR_WEAPON = "weapon";
+        const string VAR_MONEY = "money";
+
         from.SetValue(VAR_GUARDS_AMOUNT, 20);
         from.SetValue(VAR_TOTAL_GUARDS, 20);
         from.SetValue(VAR_VISIBILITY, 0f);
@@ -264,9 +288,13 @@ public class GoapMiniTest : MonoBehaviour {
         from.SetValue(VAR_WEAPON, "none");
         from.SetValue(VAR_MONEY, 0);
 
+        const int VALUE_SHIPPER = 100;
+        const int VALUE_GUN = 100;
+        const int VALUE_STUDY = 1;
+
         actions = new List<GOAPActionDelegate>() {
             new GOAPActionDelegate("RestInTheCommune")
-                .Pre(VAR_VISIBILITY,gs => gs.GetValueFloat(VAR_VISIBILITY) > 0f)
+                .Pre(VAR_VISIBILITY, gs => gs.GetValueFloat(VAR_VISIBILITY) > 0f)
                 .Effect(VAR_VISIBILITY, gs => gs.SetValueFloat(VAR_VISIBILITY, 0f))
                 .Effect(VAR_HP, gs => gs.SetValueFloat(VAR_HP, 100F))
                 .Cost(2),
@@ -275,71 +303,81 @@ public class GoapMiniTest : MonoBehaviour {
                 .Pre(VAR_TARGET_LOCATION, gs => gs.GetValueBool(VAR_TARGET_LOCATION))
                 .Effect(VAR_STUDY_LOCATION, gs => {
                     gs = gs.SetValueInt(VAR_STUDY_LOCATION, 1 + gs.GetValueInt(VAR_STUDY_LOCATION));
-                    return gs.GetValueInt(VAR_STUDY_LOCATION) >= 1 ? gs.SetValueBool(VAR_TARGET_LOCATION, true) : gs;
+                    if (gs.GetValueInt(VAR_STUDY_LOCATION) < VALUE_STUDY) return gs;
+                    gs = gs.SetValueBool(VAR_TARGET_LOCATION, true);
+                    return gs.SetValueInt(VAR_STUDY_LOCATION, 0);
                 }),
 
             new GOAPActionDelegate("StealMoney")
                 .Pre(VAR_VISIBILITY, gs => gs.GetValueFloat(VAR_VISIBILITY) < 60)
-                .Effect(VAR_MONEY, gs => gs.SetValueInt(VAR_MONEY, 100 + gs.GetValueInt(VAR_MONEY)))
+                .Effect(VAR_MONEY, gs => gs.SetValueInt(VAR_MONEY, 200 + gs.GetValueInt(VAR_MONEY)))
                 .Effect(VAR_VISIBILITY, gs => gs.SetValue(VAR_VISIBILITY, 10f + gs.GetValueFloat(VAR_VISIBILITY)))
                 .Cost(2),
 
             new GOAPActionDelegate("KillGuardGun")
-                .Pre(VAR_VISIBILITY,gs => gs.GetValueFloat(VAR_VISIBILITY) < 100)
-                .Pre(VAR_WEAPON,gs => gs.GetValueString(VAR_WEAPON) == "gun")
-                .Pre(VAR_HP,gs => gs.GetValueFloat(VAR_HP) > 40f)
+                .Pre(VAR_VISIBILITY, gs => gs.GetValueFloat(VAR_VISIBILITY) < 100)
+                .Pre(VAR_WEAPON, gs => gs.GetValueString(VAR_WEAPON) == "gun")
+                .Pre(VAR_HP, gs => gs.GetValueFloat(VAR_HP) > 40f)
                 .Effect(VAR_HP, gs => gs.SetValueFloat(VAR_HP, gs.GetValueFloat(VAR_HP) - 1f))
-                .Effect(VAR_VISIBILITY, gs => gs.SetValueFloat(VAR_VISIBILITY, Math.Abs(gs.GetValueFloat(VAR_VISIBILITY) + 10)))
-                .Effect(VAR_GUARDS_AMOUNT, gs => gs.SetValueInt(VAR_GUARDS_AMOUNT, gs.GetValueInt(VAR_GUARDS_AMOUNT) - 1))
+                .Effect(VAR_VISIBILITY,
+                    gs => gs.SetValueFloat(VAR_VISIBILITY, Math.Abs(gs.GetValueFloat(VAR_VISIBILITY) + 10)))
+                .Effect(VAR_GUARDS_AMOUNT,
+                    gs => gs.SetValueInt(VAR_GUARDS_AMOUNT, gs.GetValueInt(VAR_GUARDS_AMOUNT) - 1))
                 .Cost(3),
 
             new GOAPActionDelegate("KillGuardSniper")
-                .Pre(VAR_VISIBILITY,gs => gs.GetValueFloat(VAR_VISIBILITY) < 50)
-                .Pre(VAR_WEAPON,gs => gs.GetValueString(VAR_WEAPON) == "sniper")
-                .Pre(VAR_HP,gs => gs.GetValueFloat(VAR_HP) > 80f)
-                .Effect(VAR_VISIBILITY, gs => gs.SetValueFloat(VAR_VISIBILITY, Math.Abs(gs.GetValueFloat(VAR_VISIBILITY) + 10)))
-                .Effect(VAR_GUARDS_AMOUNT, gs => gs.SetValueInt(VAR_GUARDS_AMOUNT, gs.GetValueInt(VAR_GUARDS_AMOUNT) - 1))
+                .Pre(VAR_WEAPON, gs => gs.GetValueString(VAR_WEAPON) == "sniper")
+                .Pre(VAR_HP, gs => gs.GetValueFloat(VAR_HP) > 10f)
+                .Effect(VAR_VISIBILITY,
+                    gs => gs.SetValueFloat(VAR_VISIBILITY, Math.Abs(gs.GetValueFloat(VAR_VISIBILITY) + 10)))
+                .Effect(VAR_GUARDS_AMOUNT,
+                    gs => gs.SetValueInt(VAR_GUARDS_AMOUNT, gs.GetValueInt(VAR_GUARDS_AMOUNT) - 1))
                 .Cost(6),
 
             new GOAPActionDelegate("KillTargetGun")
-                .Pre(VAR_GUARDS_AMOUNT,gs => gs.GetValueInt(VAR_TOTAL_GUARDS) * 0.5f < gs.GetValueInt(VAR_GUARDS_AMOUNT))
-                .Pre(VAR_VISIBILITY,gs => gs.GetValueFloat(VAR_VISIBILITY) < 30)
-                .Pre(VAR_WEAPON,gs => gs.GetValueString(VAR_WEAPON) == "gun")
-                .Pre(VAR_HP,gs => gs.GetValueFloat(VAR_HP) > 99)
+                .Pre(VAR_GUARDS_AMOUNT,
+                    gs => gs.GetValueInt(VAR_TOTAL_GUARDS) * 0.5f < gs.GetValueInt(VAR_GUARDS_AMOUNT))
+                .Pre(VAR_VISIBILITY, gs => gs.GetValueFloat(VAR_VISIBILITY) < 30)
+                .Pre(VAR_WEAPON, gs => gs.GetValueString(VAR_WEAPON) == "gun")
+                .Pre(VAR_HP, gs => gs.GetValueFloat(VAR_HP) > 99)
+                .Pre(VAR_TARGET_LOCATION, gs => gs.GetValueBool(VAR_TARGET_LOCATION))
                 .Effect(VAR_HP, gs => gs.SetValueFloat(VAR_HP, gs.GetValueFloat(VAR_HP) - 5f))
-                .Effect(VAR_VISIBILITY, gs => gs.SetValueFloat(VAR_VISIBILITY, Math.Abs(gs.GetValueFloat(VAR_VISIBILITY) + 50)))
+                .Effect(VAR_VISIBILITY,
+                    gs => gs.SetValueFloat(VAR_VISIBILITY, Math.Abs(gs.GetValueFloat(VAR_VISIBILITY) + 50)))
                 .Cost(3),
 
             new GOAPActionDelegate("KillTargetSniper")
-                .Pre(VAR_GUARDS_AMOUNT,gs => gs.GetValueInt(VAR_TOTAL_GUARDS) * 0.5f < gs.GetValueInt(VAR_GUARDS_AMOUNT))
-                .Pre(VAR_VISIBILITY,gs => gs.GetValueFloat(VAR_VISIBILITY) < 10)
-                .Pre(VAR_WEAPON,gs => gs.GetValueString(VAR_WEAPON) == "sniper")
-                .Pre(VAR_HP,gs => gs.GetValueFloat(VAR_HP) > 99)
-                .Effect(VAR_VISIBILITY, gs => gs.SetValueFloat(VAR_VISIBILITY, Math.Abs(gs.GetValueFloat(VAR_VISIBILITY) + 10)))
+                .Pre(VAR_GUARDS_AMOUNT,
+                    gs => gs.GetValueInt(VAR_TOTAL_GUARDS) * 0.5f < gs.GetValueInt(VAR_GUARDS_AMOUNT))
+                .Pre(VAR_WEAPON, gs => gs.GetValueString(VAR_WEAPON) == "sniper")
+                .Pre(VAR_HP, gs => gs.GetValueFloat(VAR_HP) > 10)
+                .Pre(VAR_TARGET_LOCATION, gs => gs.GetValueBool(VAR_TARGET_LOCATION))
                 .Cost(3),
 
             new GOAPActionDelegate("BuyGun")
-                .Pre(VAR_VISIBILITY,gs => gs.GetValueFloat(VAR_VISIBILITY) < 100)
-                .Pre(VAR_WEAPON,gs => gs.GetValueString(VAR_WEAPON) != "gun")
-                .Pre(VAR_MONEY,gs => gs.GetValueInt(VAR_MONEY) >= 100)
-                .Effect(VAR_MONEY, gs => gs.SetValueInt(VAR_MONEY, gs.GetValueInt(VAR_MONEY) - 100))
+                .Pre(VAR_WEAPON, gs => gs.GetValueString(VAR_WEAPON) != "gun")
+                .Pre(VAR_MONEY, gs => gs.GetValueInt(VAR_MONEY) >= VALUE_GUN)
+                .Effect(VAR_MONEY, gs => gs.SetValueInt(VAR_MONEY, gs.GetValueInt(VAR_MONEY) - VALUE_GUN))
                 .Effect(VAR_WEAPON, gs => gs.SetValueString(VAR_WEAPON, "gun"))
                 .Cost(3),
 
             new GOAPActionDelegate("BuySniper")
-                .Pre(VAR_VISIBILITY,gs => gs.GetValueFloat(VAR_VISIBILITY) < 100)
-                .Pre(VAR_WEAPON,gs => gs.GetValueString(VAR_WEAPON) != "sniper")
-                .Pre(VAR_MONEY,gs => gs.GetValueInt(VAR_MONEY) >= 200)
-                .Effect(VAR_MONEY, gs => gs.SetValueInt(VAR_MONEY, gs.GetValueInt(VAR_MONEY) - 200))
+                .Pre(VAR_WEAPON, gs => gs.GetValueString(VAR_WEAPON) != "sniper")
+                .Pre(VAR_MONEY, gs => gs.GetValueInt(VAR_MONEY) >= VALUE_SHIPPER)
+                .Effect(VAR_MONEY, gs => gs.SetValueInt(VAR_MONEY, gs.GetValueInt(VAR_MONEY) - VALUE_SHIPPER))
                 .Effect(VAR_WEAPON, gs => gs.SetValueString(VAR_WEAPON, "sniper"))
                 .Cost(3),
         };
 
         to = new GOAPStateDelegate();
-        to.SetValue(VAR_VISIBILITY, 0f);
+        to.SetCaseFromValue(VAR_HP, (gs) => gs.GetValueFloat(VAR_HP) > 4f);
+        to.SetCaseFromValue(VAR_VISIBILITY, (gs) => gs.GetValueFloat(VAR_MONEY) < 50f);
+        to.SetCaseFromValue(VAR_WEAPON, (gs) => gs.GetValueString(VAR_WEAPON) == "sniper");
+        to.SetCaseFromValue(VAR_TARGET_LOCATION, (gs) => gs.GetValueBool(VAR_TARGET_LOCATION));
+
+        to.SetValue(VAR_VISIBILITY, 50f);
         to.SetValue(VAR_HP, 100f);
-        // to.SetValue(VAR_TARGET_LOCATION, true);
         to.SetValue(VAR_WEAPON, "sniper");
-        to.SetValue(VAR_MONEY, 300);
+        to.SetValue(VAR_TARGET_LOCATION, true);
     }
 }

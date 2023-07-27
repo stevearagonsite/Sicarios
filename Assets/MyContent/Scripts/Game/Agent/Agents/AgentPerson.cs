@@ -17,6 +17,7 @@ public class AgentPerson : BaseAgent{
 
     private void Start() {
         _meshRenderer.material.color = Consts.AGENT_PERSON_COLOR;
+        gameObject.name = "Person";
 
         var idle = new State<PersonActions>("Idle");
         var reportSicario = new State<PersonActions>("ReportSicario");

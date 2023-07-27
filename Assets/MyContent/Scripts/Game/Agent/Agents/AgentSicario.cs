@@ -20,6 +20,7 @@ public class AgentSicario : BaseAgent{
 
     private void Start() {
         _meshRenderer.material.color = Consts.AGENT_SICARIO_COLOR;
+        gameObject.name = "Sicario";
 
         var idle = new State<SicarioActions>("Idle");
         var pursuit = new State<SicarioActions>("Pursuit");

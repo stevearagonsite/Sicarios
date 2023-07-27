@@ -26,6 +26,7 @@ public class AgentDetective : BaseAgent{
 
     private void Start() {
         _meshRenderer.material.color = Consts.AGENT_DETECTIVE_COLOR;
+        gameObject.name = "Detective";
 
         var pursuit = new State<DetectiveActions>("Pursuit");
         var patrol = new State<DetectiveActions>("Patrol");
@@ -83,7 +84,6 @@ public class AgentDetective : BaseAgent{
         
         foreach (var hitCollider in hitColliders) {
             var waypoint = hitCollider.GetComponent<Waypoint>();
-            Debug.Log(hitCollider.gameObject.name);
             if (waypoint) {
                 Debug.Log("initial waypoint");
                 this._initialPatrol = waypoint;
