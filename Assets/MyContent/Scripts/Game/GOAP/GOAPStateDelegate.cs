@@ -23,12 +23,19 @@ public class GOAPStateDelegate{
             else
                 values.Add(elem.Key, elem.Value);
         }
+        
+        foreach (var elem in source.caseFromValues) {
+            if (caseFromValues.ContainsKey(elem.Key))
+                caseFromValues[elem.Key] = elem.Value;
+            else
+                caseFromValues.Add(elem.Key, elem.Value);
+        }
 
         generatingAction = gen;
     }
     
     public GOAPStateDelegate SetCaseFromValue(string key, Func<GOAPStateDelegate, bool> validationCase){
-        values[key] = validationCase;
+        caseFromValues[key] = validationCase;
         return this;
     }
     
@@ -129,19 +136,15 @@ public class GOAPStateDelegate{
     
     // this is third one 'Equals'
 
-    // public override string ToString() {
-    //     var str = "";
-    //     foreach (var kv in values.OrderBy(x => x.Key)) {
-    //         str += string.Format("{0:12} : {1}\n", kv.Key, kv.Value);
-    //     }
-    //
-    //     var response = generatingAction != null ? generatingAction.name : "NULL";
-    //
-    //     return response + "\n" + "----------------------------" + "\n" + str;
-    // }
-    //
-    
     public override string ToString() {
         return generatingAction != null ? generatingAction.name : "NULL";
+        var str = "";
+        foreach (var kv in values.OrderBy(x => x.Key)) {
+            str += string.Format("{0:12} : {1}\n", kv.Key, kv.Value);
+        }
+    
+        var response = generatingAction != null ? generatingAction.name : "NULL";
+    
+        return response + "\n" + "----------------------------" + "\n" + str;
     }
 }
