@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace FP {
+namespace FSM {
 	public class State<T> {
 		public class Transition {
 			public readonly State<T> targetState;

@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour{
     public GameObject agentContainer;
@@ -10,17 +12,32 @@ public class GameManager : MonoBehaviour{
     public int quantityPersons = 20;
     public int quantityDetective = 2;
     public int quantityTarget = 2;
+    public List<Transform> locations;
 
     private List<BaseAgent> _agentsCollection;
-    private List<IItem> _itemsCollection;
+    private List<Item> _itemsCollection;
     
     // Random positioning
     private List<Waypoint> _listWaypoints;
     private List<Waypoint> _listAvaiableWaypoints;
 
+    public static GameManager instance;
+
+    private void Awake() {
+        if (instance != null)
+        {
+            instance = null;
+            instance = this;
+        }
+        else
+        {
+            instance = this;
+        }
+    }
+
     private void Start() {
         _agentsCollection = new List<BaseAgent>();
-        _itemsCollection = new List<IItem>();
+        _itemsCollection = new List<Item>();
         _listWaypoints = FindObjectsOfType<Waypoint>().ToList();
         _listAvaiableWaypoints = _listWaypoints;
         
@@ -80,7 +97,7 @@ public class GameManager : MonoBehaviour{
 
     private void SaveItems() {
         foreach (Transform itemObject in itemsContainer.transform) {
-            _itemsCollection.Add(itemObject.gameObject.GetComponent<IItem>());
+            _itemsCollection.Add(itemObject.gameObject.GetComponent<Item>());
         }
     }
 }

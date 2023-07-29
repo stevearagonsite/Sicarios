@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class GOAPActionDelegate{
+public class GOAPActionDelegate {
     public Dictionary<string, Func<GOAPStateDelegate, bool>> preconditions { get; private set; }
     public Dictionary<string, Func<GOAPStateDelegate, GOAPStateDelegate>> effects { get; private set; }
     public string name { get; private set; }
@@ -27,7 +27,7 @@ public class GOAPActionDelegate{
         this.cost = cost;
         return this;
     }
-    
+
     public bool ValidatePreconditions(GOAPStateDelegate state) {
         return preconditions.All(kvp => kvp.Value(state));
     }
@@ -36,10 +36,14 @@ public class GOAPActionDelegate{
         preconditions[s] = value;
         return this;
     }
-    
+
 
     public GOAPActionDelegate Effect(string s, Func<GOAPStateDelegate, GOAPStateDelegate> value) {
         effects[s] = value;
         return this;
+    }
+
+    public void ExecuteAction(BaseAgent agent) {
+        Debug.Log("Executing action: " + name);
     }
 }

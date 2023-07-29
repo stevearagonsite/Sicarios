@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using FP;
+using FSM;
 using MyContent.Scripts;
 using UnityEngine;
 
@@ -62,6 +63,14 @@ public class AgentPerson : BaseAgent{
             _fsm.Feed(PersonActions.Idle);
             yield return new WaitForSeconds(time);
         }
+    }
+    
+    public void WalkForward() {
+        if (_terrainChecker.isTerrain) {
+            return;
+        }
+
+        transform.position += transform.forward * Time.deltaTime * MovementSpeed;
     }
 
     public void OnRandomMove() {

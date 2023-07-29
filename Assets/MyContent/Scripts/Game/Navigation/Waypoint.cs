@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Waypoint : MonoBehaviour{
     public List<Waypoint> adyacent;
-    public HashSet<IItem> nearbyItems = new HashSet<IItem>();
+    public HashSet<Item> nearbyItems = new HashSet<Item>();
 
     void Start() {
         //Make bidirectional

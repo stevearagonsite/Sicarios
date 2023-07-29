@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
-using UnityEngine;
 
-namespace FP {
+namespace FSM {
 	public class EventFSM<T> {
 		public readonly State<T> any;
 		State<T> _current;
