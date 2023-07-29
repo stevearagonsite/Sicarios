@@ -3,7 +3,7 @@ using System.Linq;
 using MyContent.Scripts;
 using UnityEngine;
 using Debug = Logger.Debug;
-using AgentConstants = AgentSicarioConstants;
+using AgentConstants = AgentSicarioConstants.AgentSicarioStates;
 
 [RequireComponent(typeof(LineOfSight))]
 public partial class AgentSicario : BaseAgent{

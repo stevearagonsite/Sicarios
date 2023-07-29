@@ -8,7 +8,7 @@ using FSM;
 using UnityEngine;
 using Debug = Logger.Debug;
 using Random = UnityEngine.Random;
-using AgentConstants = AgentSicarioConstants;
+using AgentConstants = AgentSicarioConstants.AgentSicarioStates;
 
 public partial class AgentSicario {
     private EventFSM<string> _fsm;
