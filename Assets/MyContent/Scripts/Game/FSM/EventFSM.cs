@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace FSM {
 	public class EventFSM<T> {
@@ -19,15 +20,16 @@ namespace FSM {
 		}
 
 		public bool Feed(T input) {
-			if(_feeding)
-				throw new Exception("Error: Feeding from OnEnter or OnExit, will cause repeated or missing calls");
+			// if(_feeding)
+				// throw new Exception("Error: Feeding from OnEnter or OnExit, will cause repeated or missing calls");
 			
 			State<T>.Transition transition;
 			if(
 				_current._TryGetTransition(input, out transition)
 				|| any._TryGetTransition(input, out transition)
 			) {
-				_feeding = true;		//Not multi-thread safe...
+				// TODO: Fix feeding
+				// _feeding = true;		//Not multi-thread safe...
 
 				_current._Exit();
 				#if FP_VERBOSE
@@ -37,7 +39,7 @@ namespace FSM {
 				_current = transition.targetState;
 				_current._Enter();
 				
-				_feeding = false;
+				// _feeding = false;
 
 				return true;
 			}

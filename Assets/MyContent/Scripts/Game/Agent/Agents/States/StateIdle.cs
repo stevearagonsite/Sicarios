@@ -9,15 +9,13 @@ public class StateIdle : MonoBehaviour, IState {
 
     private string _name;
     private BaseAgent _agent;
-    private EventFSM<string> _fsm;
     private Coroutine _coroutine;
     
     public string name => _name;
 
-    public StateIdle SetValues(string name, BaseAgent agent, EventFSM<string> fsm) {
+    public StateIdle SetValues(string name, BaseAgent agent) {
         this._name = name;
         _agent = agent;
-        _fsm = fsm;
         
         return this;
     }
@@ -51,7 +49,7 @@ public class StateIdle : MonoBehaviour, IState {
     }
 
     private void OffRandomMove() {
-        _coroutine = StartCoroutine(RandomWalk());
+        StopCoroutine(_coroutine);
     }
 
     private IEnumerator RandomWalk() {

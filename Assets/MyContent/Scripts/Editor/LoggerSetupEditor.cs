@@ -52,9 +52,14 @@ public class LoggerSetupEditor : Editor
             proxy.keys.Add("");
             proxy.values.Add(false);
         }
-        
+
         EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("Clean")) {
+        if (GUILayout.Button("Turn all off")) {
+            for (int i = proxy.values.Count - 1; i >= 0; i--) {
+                proxy.values[i] = false;
+            }
+        }
+        if (GUILayout.Button("Remove all")) {
             proxy.keys.Clear();
             proxy.values.Clear();
         }

@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using ItemsConstants = Items.ItemConstants;
+
 namespace AgentSicarioConstants {
     static class AgentSicarioActions {
         public const string ACTION_REST_IN_THE_COMMUNE = "RestInTheCommune";
@@ -35,5 +38,31 @@ namespace AgentSicarioConstants {
         public const string VAR_DEAD_TARGET = "deadTarget";
         public const string VAR_WEAPON = "weapon";
         public const string VAR_MONEY = "money";
+    }
+
+    static class AgentSicarioDictionaries {
+        public static readonly Dictionary<string, string> ActionToItem = new() {
+            { AgentSicarioActions.ACTION_REST_IN_THE_COMMUNE, ItemsConstants.ITEM_TYPE_COMMUNE },
+            { AgentSicarioActions.ACTION_STUDY_LOCATIONS, ItemsConstants.ITEM_TYPE_LOCATION },
+            { AgentSicarioActions.ACTION_STEAL_MONEY, ItemsConstants.ITEM_TYPE_MONEY },
+            { AgentSicarioActions.ACTION_KILL_GUARD_GUN, ItemsConstants.ITEM_TYPE_GUARD },
+            { AgentSicarioActions.ACTION_KILL_GUARD_SNIPER, ItemsConstants.ITEM_TYPE_GUARD },
+            { AgentSicarioActions.ACTION_KILL_TARGET_GUN, ItemsConstants.ITEM_TYPE_TARGET },
+            { AgentSicarioActions.ACTION_KILL_TARGET_SNIPER, ItemsConstants.ITEM_TYPE_TARGET },
+            { AgentSicarioActions.ACTION_BUY_GUN, ItemsConstants.ITEM_TYPE_STORE },
+            { AgentSicarioActions.ACTION_BUY_SNIPER, ItemsConstants.ITEM_TYPE_STORE },
+        };
+
+        public static readonly Dictionary<string, string> ActionToState = new() {
+            { AgentSicarioActions.ACTION_REST_IN_THE_COMMUNE, AgentSicarioStates.GO_TO },
+            { AgentSicarioActions.ACTION_STUDY_LOCATIONS, AgentSicarioStates.GO_TO },
+            { AgentSicarioActions.ACTION_STEAL_MONEY, AgentSicarioStates.PURSUIT },
+            { AgentSicarioActions.ACTION_KILL_GUARD_GUN, AgentSicarioStates.KILL },
+            { AgentSicarioActions.ACTION_KILL_GUARD_SNIPER, AgentSicarioStates.KILL },
+            { AgentSicarioActions.ACTION_KILL_TARGET_GUN, AgentSicarioStates.KILL },
+            { AgentSicarioActions.ACTION_KILL_TARGET_SNIPER, AgentSicarioStates.KILL },
+            { AgentSicarioActions.ACTION_BUY_GUN, AgentSicarioStates.GO_TO },
+            { AgentSicarioActions.ACTION_BUY_SNIPER, AgentSicarioStates.GO_TO },
+        };
     }
 }

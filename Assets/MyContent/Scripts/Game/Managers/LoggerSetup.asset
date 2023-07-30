@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   keys:
   - Navigation
-  - AgentSicario
+  - Agent State AddExecutionsByState
   - GOAP
   - GOAP planner
-  values: 01010101
+  - StatePlanStep
+  values: 0000000000

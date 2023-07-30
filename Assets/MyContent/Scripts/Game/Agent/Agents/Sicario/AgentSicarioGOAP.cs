@@ -1,10 +1,13 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Items;
 using Logger;
 using GoapA = AgentSicarioConstants.AgentSicarioActions;
 using GoapV = AgentSicarioConstants.AgentSicarioGoapVariables;
+using AgentStates = AgentSicarioConstants.AgentSicarioStates;
+using ItemsConstants = Items.ItemConstants;
+using Dictionaries = AgentSicarioConstants.AgentSicarioDictionaries;
 
 public partial class AgentSicario {
     private void CreatePlan(out List<GOAPActionDelegate> actions, out GOAPStateDelegate from,
@@ -36,10 +39,10 @@ public partial class AgentSicario {
             new GOAPActionDelegate(GoapA.ACTION_STUDY_LOCATIONS)
                 .Pre(GoapV.VAR_TARGET_LOCATION, gs => !gs.GetValueBool(GoapV.VAR_TARGET_LOCATION))
                 .Effect(GoapV.VAR_STUDY_LOCATION, gs => {
-                    gs = gs.SetValueInt(GoapV. VAR_STUDY_LOCATION, 1 + gs.GetValueInt(GoapV. VAR_STUDY_LOCATION));
-                    if (gs.GetValueInt(GoapV. VAR_STUDY_LOCATION) < VALUE_STUDY) return gs;
+                    gs = gs.SetValueInt(GoapV.VAR_STUDY_LOCATION, 1 + gs.GetValueInt(GoapV.VAR_STUDY_LOCATION));
+                    if (gs.GetValueInt(GoapV.VAR_STUDY_LOCATION) < VALUE_STUDY) return gs;
                     gs = gs.SetValueBool(GoapV.VAR_TARGET_LOCATION, true);
-                    return gs.SetValueInt(GoapV. VAR_STUDY_LOCATION, 0);
+                    return gs.SetValueInt(GoapV.VAR_STUDY_LOCATION, 0);
                 }),
 
             new GOAPActionDelegate(GoapA.ACTION_STEAL_MONEY)
@@ -115,5 +118,55 @@ public partial class AgentSicario {
         to.SetCaseFromValue(GoapV.VAR_WEAPON, (gs) => gs.GetValueString(GoapV.VAR_WEAPON) == WEAPON_SNIPER);
         to.SetCaseFromValue(GoapV.VAR_TARGET_LOCATION, (gs) => gs.GetValueBool(GoapV.VAR_TARGET_LOCATION));
         to.SetCaseFromValue(GoapV.VAR_DEAD_TARGET, (gs) => gs.GetValueBool(GoapV.VAR_DEAD_TARGET));
+    }
+
+    protected override void ExecutePlan(List<Tuple<string, Item>> plan) {
+        _plan = plan;
+        _fsm.Feed(AgentStates.PLAN_STEP);
+    }
+
+    protected override IEnumerable<GOAPActionDelegate> goapPlan {
+        set {
+
+            var everything = Navigation.instance.AllItems().Union(Navigation.instance.AllInventories());
+            _goapPlan = value;
+            var plan = _goapPlan
+                .Select(goapAction => goapAction.name)
+                .Select(actionName => {
+                    var itemForAction = everything.FirstOrDefault(item =>
+                        Dictionaries.ActionToItem.Any(kv => actionName == kv.Key) &&
+                        item.type == Dictionaries.ActionToItem.First(kv => actionName == kv.Key).Value
+                    );
+#if UNITY_EDITOR
+                    if (itemForAction == null) {
+                        Debug.LogColor("GOAP planner", "ITEM FOR ACTION FAIL", "red");
+                        Debug.LogColor("GOAP planner", "action: " + actionName, "red");
+                        Debug.LogColor("GOAP planner", "everything count: " + everything.Count(), "red");
+                        Debug.LogColor("GOAP planner",
+                            "condition actionToItem: " + Dictionaries.ActionToItem.Any(kv => actionName == kv.Key), "red");
+                        var firstItem = Dictionaries.ActionToItem.First(kv => actionName == kv.Key);
+                        Debug.LogColor("GOAP planner", "item FIRST: " + firstItem.Key + " " + firstItem.Value, "red");
+                        Debug.LogError("GOAP planner");
+                    }
+#endif
+                    if (Dictionaries.ActionToState.Any(kv => actionName == kv.Key) && itemForAction != null) {
+                        return Tuple
+                            .Create(
+                                Dictionaries.ActionToState.First(kv => actionName.StartsWith(kv.Key)).Value,
+                                itemForAction
+                            );
+                    }
+
+                    return null;
+                }).Where(a => a != null)
+                .ToList();
+#if UNITY_EDITOR
+            Debug.Log("GOAP planner", "GoapPlan: " + string.Join(", ", _goapPlan.Select(pa => pa.name)));
+            Debug.Log("GOAP planner",
+                "Plan: " + string.Join(", ",
+                    plan.Select(pa => plan.IndexOf(pa) + ": " + pa.Item1 + " " + pa.Item2.name).ToArray()));
+#endif
+            ExecutePlan(plan);
+        }
     }
 }

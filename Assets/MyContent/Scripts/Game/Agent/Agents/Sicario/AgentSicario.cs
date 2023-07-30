@@ -9,7 +9,6 @@ using AgentConstants = AgentSicarioConstants.AgentSicarioStates;
 
 [RequireComponent(typeof(LineOfSight))]
 public partial class AgentSicario : BaseAgent{
-    protected IEnumerable<Tuple<string, Item>> _plan;
 
     protected override void Awake() {
         base.Awake();

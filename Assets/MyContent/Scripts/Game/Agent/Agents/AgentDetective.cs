@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using FSM;
 using Items;
 using MyContent.Scripts;
@@ -112,5 +113,13 @@ public class AgentDetective : BaseAgent{
             
             yield return new WaitForSeconds(time);
         }
+    }
+
+    protected override IEnumerable<GOAPActionDelegate> goapPlan {
+        set => throw new System.NotImplementedException();
+    }
+
+    protected override void ExecutePlan(List<Tuple<string, Item>> plan) {
+        throw new System.NotImplementedException();
     }
 }

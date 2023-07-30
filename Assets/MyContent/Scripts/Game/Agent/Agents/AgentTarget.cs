@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Items;
 using MyContent.Scripts;
 using UnityEngine;
@@ -11,5 +12,13 @@ public class AgentTarget : BaseAgent{
         gameObject.name = "Target";
         var item = GetComponent<Item>();
         item.type = ItemConstants.ITEM_TYPE_TARGET;
+    }
+
+    protected override IEnumerable<GOAPActionDelegate> goapPlan {
+        set => throw new System.NotImplementedException();
+    }
+
+    protected override void ExecutePlan(List<Tuple<string, Item>> plan) {
+        throw new System.NotImplementedException();
     }
 }

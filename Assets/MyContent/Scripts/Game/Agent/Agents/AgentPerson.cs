@@ -1,4 +1,6 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using FP;
 using FSM;
 using Items;
@@ -91,5 +93,13 @@ public class AgentPerson : BaseAgent{
             randomWalk((BaseAgent) this);
             yield return new WaitForSeconds(time);
         }
+    }
+
+    protected override IEnumerable<GOAPActionDelegate> goapPlan {
+        set => throw new System.NotImplementedException();
+    }
+
+    protected override void ExecutePlan(List<Tuple<string, Item>> plan) {
+        throw new System.NotImplementedException();
     }
 }
