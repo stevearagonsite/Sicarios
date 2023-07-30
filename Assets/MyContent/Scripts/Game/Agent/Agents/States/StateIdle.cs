@@ -39,7 +39,7 @@ public class StateIdle : MonoBehaviour, IState {
     #endregion IState
     
     public void WalkForward() {
-        if (!_agent.IsTerrain) {
+        if (_agent.IsTerrain) {
             return;
         }
 

@@ -2,12 +2,12 @@ using System;
 using FP;
 using FSM;
 
-public class StateGoTo<AgentActions>: IState {
+public class StateGoTo: IState {
     public readonly string name;
     private BaseAgent _agent;
-    private EventFSM<AgentActions> _fsm;
+    private EventFSM<string> _fsm;
     
-    public StateGoTo(string name, BaseAgent agent, EventFSM<AgentActions> fsm) {
+    public StateGoTo(string name, BaseAgent agent, EventFSM<string> fsm) {
         this.name = name;
         _agent = agent;
         _fsm = fsm;

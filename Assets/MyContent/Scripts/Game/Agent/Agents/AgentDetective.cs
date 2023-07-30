@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using FP;
 using FSM;
+using Items;
 using MyContent.Scripts;
 using UnityEngine;
 
+[RequireComponent(typeof(Item))]
 public class AgentDetective : BaseAgent{
     public enum DetectiveActions{
         None = 0,
@@ -28,6 +27,8 @@ public class AgentDetective : BaseAgent{
     private void Start() {
         _meshRenderer.material.color = Consts.AGENT_DETECTIVE_COLOR;
         gameObject.name = "Detective";
+        var item = GetComponent<Item>();
+        item.type = ItemConstants.ITEM_TYPE_GUARD;
 
         var pursuit = new State<DetectiveActions>("Pursuit");
         var patrol = new State<DetectiveActions>("Patrol");

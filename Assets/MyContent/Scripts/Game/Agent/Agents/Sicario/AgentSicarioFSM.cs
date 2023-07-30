@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using MyContent.Scripts;
-using FP;
 using FSM;
 using UnityEngine;
 using Debug = Logger.Debug;
@@ -22,15 +21,29 @@ public partial class AgentSicario {
         FSMStates();
         SubscribeAgentExecutionStates();
 
+        CreatePlan(out var actions, out var from, out var to);
+        StartCoroutine(GoapRunDelegate(from, to, actions));
         _fsm = new EventFSM<string>(_agentStates[AgentConstants.IDLE]);
         _fsm.Feed(AgentConstants.IDLE);
+        StartCoroutine(SicarioDecisions(1f));
     }
     
     private void Update() {
         _fsm.Update();
     }
+    
+    public virtual IEnumerator SicarioDecisions(float time) {
+        while (true) {
+            _fsm.Feed(AgentConstants.IDLE);
+            if (_goapPlan != null) {
+                GOAPActionDelegate action = _goapPlan.First();
+            }
 
-    #endregion     #monobehaviour
+            yield return new WaitForSeconds(time);
+        }
+    }
+
+    #endregion #monobehaviour
 
     private void CreateAgentExecutionStates() {
         _agentExecutionStates = new Dictionary<string, IState>() {
@@ -39,8 +52,11 @@ public partial class AgentSicario {
             [AgentConstants.EVADE] = new StateEvade(AgentConstants.EVADE, this, _fsm),
             [AgentConstants.KILL] = new StateKill(AgentConstants.KILL, this, _fsm),
             [AgentConstants.DEAD] = new StateDead(AgentConstants.DEAD, this, _fsm),
-            // [AgentConstants.PLANSTEP] = new StatePlanStep("PlanStep", this, _fsm),
-            // [AgentConstants.PLANFAIL] = new StatePlanFail("PlanFail", this, _fsm)
+            [AgentConstants.GO_TO] = new StateGoTo(AgentConstants.GO_TO, this, _fsm),
+            [AgentConstants.PICK_UP] = new StatePickUp(AgentConstants.PICK_UP, this, _fsm),
+            // [AgentConstants.PLAN_STEP] = new StatePlanStep(AgentConstants.PLAN_STEP, this, _fsm),
+            // [AgentConstants.PLAN_FAIL] = new StatePlanFail(AgentConstants.PLAN_FAIL, this, _fsm),
+            // [AgentConstants.PLAN_SUCCESS] = new StatePlanSuccess(AgentConstants.PLAN_SUCCESS, this, _fsm)
         };
     }
 
@@ -50,42 +66,41 @@ public partial class AgentSicario {
         var evade = new State<string>(AgentConstants.EVADE);
         var kill = new State<string>(AgentConstants.KILL);
         var dead = new State<string>(AgentConstants.DEAD);
-
-        // Idle set
-        idle.SetTransition(AgentConstants.IDLE, idle);
-        idle.SetTransition(AgentConstants.PURSUIT, pursuit);
-        idle.SetTransition(AgentConstants.KILL, kill);
-        idle.SetTransition(AgentConstants.EVADE, evade);
-        idle.SetTransition(AgentConstants.DEAD, dead);
-
-        // Pursuit set
-        pursuit.SetTransition(AgentConstants.PURSUIT, pursuit);
-        pursuit.SetTransition(AgentConstants.EVADE, evade);
-        pursuit.SetTransition(AgentConstants.DEAD, dead);
-        pursuit.SetTransition(AgentConstants.KILL, kill);
-        pursuit.SetTransition(AgentConstants.IDLE, idle);
-
-        // Evade set
-        evade.SetTransition(AgentConstants.EVADE, evade);
-        evade.SetTransition(AgentConstants.IDLE, idle);
-        evade.SetTransition(AgentConstants.PURSUIT, pursuit);
-        evade.SetTransition(AgentConstants.KILL, kill);
-        evade.SetTransition(AgentConstants.DEAD, dead);
-
-        // Kill set
-        kill.SetTransition(AgentConstants.KILL, kill);
-        kill.SetTransition(AgentConstants.EVADE, evade);
-        kill.SetTransition(AgentConstants.DEAD, dead);
-        kill.SetTransition(AgentConstants.PURSUIT, pursuit);
-        kill.SetTransition(AgentConstants.DEAD, dead);
-
+        var goTo = new State<string>(AgentConstants.GO_TO);
+        var pickUp = new State<string>(AgentConstants.PICK_UP);
+        var planStep = new State<string>(AgentConstants.PLAN_STEP);
+        var planFail = new State<string>(AgentConstants.PLAN_FAIL);
+        var planSuccess = new State<string>(AgentConstants.PLAN_SUCCESS);
+        
         _agentStates = new Dictionary<string, State<string>>() {
             [AgentConstants.IDLE] = idle,
             [AgentConstants.PURSUIT] = pursuit,
             [AgentConstants.EVADE] = evade,
             [AgentConstants.KILL] = kill,
-            [AgentConstants.DEAD] = dead
+            [AgentConstants.DEAD] = dead,
+            [AgentConstants.PICK_UP] = pickUp,
+            [AgentConstants.GO_TO] = goTo,
+            [AgentConstants.PLAN_STEP] = planStep,
+            [AgentConstants.PLAN_FAIL] = planFail,
+            [AgentConstants.PLAN_SUCCESS] = planSuccess
         };
+        
+        SetAllTransitions(idle);
+        SetAllTransitions(pursuit);
+        SetAllTransitions(evade);
+        SetAllTransitions(kill);
+        SetAllTransitions(dead);
+        SetAllTransitions(pickUp);
+        SetAllTransitions(goTo);
+        SetAllTransitions(planStep);
+        SetAllTransitions(planFail);
+        SetAllTransitions(planSuccess);
+    }
+
+    private void SetAllTransitions(State<string> state) {
+        foreach (var keyValue in _agentStates) {
+            state.SetTransition(keyValue.Key, keyValue.Value);
+        }
     }
 
     private void SubscribeAgentExecutionStates() {
@@ -94,12 +109,34 @@ public partial class AgentSicario {
         AddExecutionsByAction(AgentConstants.EVADE, _agentExecutionStates[AgentConstants.EVADE]);
         AddExecutionsByAction(AgentConstants.KILL, _agentExecutionStates[AgentConstants.KILL]);
         AddExecutionsByAction(AgentConstants.DEAD, _agentExecutionStates[AgentConstants.DEAD]);
+        AddExecutionsByAction(AgentConstants.DEAD, _agentExecutionStates[AgentConstants.DEAD]);
         // AddExecutionsByAction(AgentConstants.PLAN_FAIL, _agentExecutionStates[AgentConstants.PLAN_FAIL]);
         // AddExecutionsByAction(AgentConstants.PLAN_STEP, _agentExecutionStates[AgentConstants.PLAN_STEP]);
+        // AddExecutionsByAction(AgentConstants.DEAD, _agentExecutionStates[AgentConstants.SUCCESS]);
+        _agentStates[AgentConstants.PLAN_STEP].OnEnter += () => {
+            Debug.Log("Plan next step");
+            var step = _plan.FirstOrDefault();
+            if(step != null) {
+                Debug.Log("Next step:" + step.Item1 + "," + step.Item2, "YELLOW");
+
+                _plan = _plan.Skip(1);
+                var oldTarget = target;
+                target = step.Item2;
+                if(!_fsm.Feed(step.Item1))
+                    target = oldTarget;
+                return;
+            }
+            _fsm.Feed(AgentConstants.PLAN_SUCCESS);
+        };
+        _agentStates[AgentConstants.PLAN_SUCCESS].OnEnter += () => {
+            Debug.LogColor("Plan FAIL", "RED");
+        };
+        _agentStates[AgentConstants.PLAN_SUCCESS].OnEnter += () => {
+            Debug.LogColor("Plan SUCCESS", "GREEN");
+        };
     }
 
-    private void AddExecutionsByAction(string actionKey, IState actionExecutions) {
-        
+    public void AddExecutionsByAction(string actionKey, IState actionExecutions) {
         _agentStates[actionKey].OnEnter += actionExecutions.OnEnter;
         _agentStates[actionKey].OnUpdate += actionExecutions.OnUpdate;
         _agentStates[actionKey].OnExit += actionExecutions.OnExit;

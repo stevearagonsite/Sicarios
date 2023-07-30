@@ -1,9 +1,11 @@
 ﻿using System.Collections;
 using FP;
 using FSM;
+using Items;
 using MyContent.Scripts;
 using UnityEngine;
 
+[RequireComponent(typeof(Item))]
 public class AgentPerson : BaseAgent{
     public enum PersonActions{
         None = 0,
@@ -19,6 +21,8 @@ public class AgentPerson : BaseAgent{
     private void Start() {
         _meshRenderer.material.color = Consts.AGENT_PERSON_COLOR;
         gameObject.name = "Person";
+        var item = GetComponent<Item>();
+        item.type = ItemConstants.ITEM_TYPE_MONEY;
 
         var idle = new State<PersonActions>("Idle");
         var reportSicario = new State<PersonActions>("ReportSicario");

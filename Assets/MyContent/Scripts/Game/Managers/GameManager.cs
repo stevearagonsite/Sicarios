@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Items;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -44,6 +45,11 @@ public class GameManager : MonoBehaviour{
         if (quantitySicarios < 0 || quantityPersons < 0 || 
             quantityDetective < 0 || quantityTarget < 0) {
             Debug.LogError("The quantity creation can not be null");
+            return;
+        }
+        
+        if (Navigation.instance == null) {
+            Debug.LogError("Navigation instance is null");
             return;
         }
         

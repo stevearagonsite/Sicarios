@@ -35,64 +35,132 @@ namespace Logger {
         public static int FontSize = 12;
 
         #region LogFilter
+        
+        public static Dictionary<string, bool> classLogger = new Dictionary<string, bool>();
 
-        private static IList<string> m_objects = new List<string>();
-
-        public static void Add(object obj) {
-            var name = obj.GetType().FullName;
-            if (!m_objects.Contains(name)) {
-                m_objects.Add(name);
+        #region byKey
+        public static void Log(string key, object message) {
+            var name = key;
+            if (!classLogger.ContainsKey(name)) {
+                classLogger[name] = true;
+            }
+            if (classLogger[name]) {
+                Log("[" + name + "]: " + message);
             }
         }
 
-        public static void Remove(object obj) {
-            var name = obj.GetType().FullName;
-            if (m_objects.Contains(name)) {
-                m_objects.Remove(name);
+        public static void LogWarning(string key, object message) {
+            var name = key;
+            if (!classLogger.ContainsKey(name)) {
+                classLogger[name] = true;
+            }
+            if (classLogger[name]) {
+                LogWarning("[" + name + "]: " + message);
             }
         }
 
+        public static void LogError(string key, object message) {
+            var name = key;
+            if (!classLogger.ContainsKey(name)) {
+                classLogger[name] = true;
+            }
+            if (classLogger[name]) {
+                LogError("[" + name + "]: " + message);
+            }
+        }
+
+        public static void LogBold(string key, object message) {
+            var name = key;
+            if (!classLogger.ContainsKey(name)) {
+                classLogger[name] = true;
+            }
+            if (classLogger[name]) {
+                Log(ApplyStyle("[" + name + "]: " + "<b>" + message + "</b>"));
+            }
+        }
+
+        public static void LogItalic(string key, object message) {
+            var name = key;
+            if (!classLogger.ContainsKey(name)) {
+                classLogger[name] = true;
+            }
+            if (classLogger[name]) {
+                Log(ApplyStyle("[" + name + "]: " + "<i>" + message + "</i>"));
+            }
+        }
+
+        public static void LogColor(string key, object message, string color) {
+            var name = key;
+            if (!classLogger.ContainsKey(name)) {
+                classLogger[name] = true;
+            }
+            if (classLogger[name]) {
+                Log(ApplyStyle("[" + name + "]: " + "<color=" + color + ">" + message + "</color>"));
+            }
+        }
+        #endregion
+        
+        #region byObj
         public static void Log(object obj, object message) {
             var name = obj.GetType().FullName;
-            if (m_objects.Contains(name)) {
-                Log("[" + name + "]: " + message);
+            if (!classLogger.ContainsKey(name)) {
+                classLogger[name] = true;
+            }
+            if (classLogger[name]) {
+                Log("[" + obj.GetType().FullName + "]: " + message);
             }
         }
 
         public static void LogWarning(object obj, object message) {
             var name = obj.GetType().FullName;
-            if (m_objects.Contains(name)) {
+            if (!classLogger.ContainsKey(name)) {
+                classLogger[name] = true;
+            }
+            if (classLogger[name]) {
                 LogWarning("[" + name + "]: " + message);
             }
         }
 
         public static void LogError(object obj, object message) {
             var name = obj.GetType().FullName;
-            if (m_objects.Contains(name)) {
+            if (!classLogger.ContainsKey(name)) {
+                classLogger[name] = true;
+            }
+            if (classLogger[name]) {
                 LogError("[" + name + "]: " + message);
             }
         }
 
         public static void LogBold(object obj, object message) {
             var name = obj.GetType().FullName;
-            if (m_objects.Contains(name)) {
+            if (!classLogger.ContainsKey(name)) {
+                classLogger[name] = true;
+            }
+            if (classLogger[name]) {
                 Log(ApplyStyle("[" + name + "]: " + "<b>" + message + "</b>"));
             }
         }
 
         public static void LogItalic(object obj, object message) {
             var name = obj.GetType().FullName;
-            if (m_objects.Contains(name)) {
+            if (!classLogger.ContainsKey(name)) {
+                classLogger[name] = true;
+            }
+            if (classLogger[name]) {
                 Log(ApplyStyle("[" + name + "]: " + "<i>" + message + "</i>"));
             }
         }
 
         public static void LogColor(object obj, object message, string color) {
             var name = obj.GetType().FullName;
-            if (m_objects.Contains(name)) {
+            if (!classLogger.ContainsKey(name)) {
+                classLogger[name] = true;
+            }
+            if (classLogger[name]) {
                 Log(ApplyStyle("[" + name + "]: " + "<color=" + color + ">" + message + "</color>"));
             }
         }
+        #endregion
 
         #endregion
 

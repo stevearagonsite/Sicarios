@@ -36,10 +36,10 @@ public partial class AgentSicario {
             new GOAPActionDelegate(GoapA.ACTION_STUDY_LOCATIONS)
                 .Pre(GoapV.VAR_TARGET_LOCATION, gs => !gs.GetValueBool(GoapV.VAR_TARGET_LOCATION))
                 .Effect(GoapV.VAR_STUDY_LOCATION, gs => {
-                    // gs = gs.SetValueInt(VariablesGoap.VAR_STUDY_LOCATION, 1 + gs.GetValueInt(VariablesGoap.VAR_STUDY_LOCATION));
-                    target = GameManager.instance.locations[0];
-                    // gs = gs.SetValueBool(VariablesGoap.VAR_TARGET_LOCATION, true);
-                    return gs.SetValueInt(GoapV.VAR_STUDY_LOCATION, 0);
+                    gs = gs.SetValueInt(GoapV. VAR_STUDY_LOCATION, 1 + gs.GetValueInt(GoapV. VAR_STUDY_LOCATION));
+                    if (gs.GetValueInt(GoapV. VAR_STUDY_LOCATION) < VALUE_STUDY) return gs;
+                    gs = gs.SetValueBool(GoapV.VAR_TARGET_LOCATION, true);
+                    return gs.SetValueInt(GoapV. VAR_STUDY_LOCATION, 0);
                 }),
 
             new GOAPActionDelegate(GoapA.ACTION_STEAL_MONEY)

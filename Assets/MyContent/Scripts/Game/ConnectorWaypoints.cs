@@ -33,6 +33,8 @@ public class ConnectorWaypoints : MonoBehaviour{
     private bool HasConnection {
         get { return _allConnections.Any(connector => connector != null); }
     }
+    
+    public IEnumerable<Waypoint> AllWaypoints => GetComponentsInChildren<Waypoint>();
 
     private void Awake() {
         _connectorDictionary = new Dictionary<PositionConnect, ConnectorWaypoints>() {

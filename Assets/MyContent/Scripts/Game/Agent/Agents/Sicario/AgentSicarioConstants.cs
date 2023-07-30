@@ -2,7 +2,7 @@ namespace AgentSicarioConstants {
     static class AgentSicarioActions {
         public const string ACTION_REST_IN_THE_COMMUNE = "RestInTheCommune";
         public const string ACTION_STUDY_LOCATIONS = "StudyLocations";
-        public const string ACTION_STEAL_MONEY = "StudyLocations";
+        public const string ACTION_STEAL_MONEY = "StealMoney";
         public const string ACTION_KILL_GUARD_GUN = "KillGuardGun";
         public const string ACTION_KILL_GUARD_SNIPER = "KillGuardSniper";
         public const string ACTION_KILL_TARGET_GUN = "KillTargetGun";
@@ -18,8 +18,10 @@ namespace AgentSicarioConstants {
         public const string DEAD = "Dead";
         public const string EVADE = "Evade";
         public const string GO_TO = "GoTo";
-        public const string PLAN_FAIL = "PlanFail";
+        public const string PICK_UP = "pickUp";
         public const string PLAN_STEP = "PlanStep";
+        public const string PLAN_FAIL = "PlanFail";
+        public const string PLAN_SUCCESS = "Success";
     }
 
     static class AgentSicarioGoapVariables {

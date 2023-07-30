@@ -1,12 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Items;
+using LINQExtension;
 using UnityEngine;
+using Debug = Logger.Debug;
 
-public class Navigation : MonoBehaviour{
+public class Navigation : MonoBehaviour {
     public static Navigation instance;
     private List<Waypoint> _waypoints = new List<Waypoint>();
+    public int waypointsCount => _waypoints.Count;
+    public event Action OnWaypointsChanged = delegate { };
 
-    void Start() {
+    private void Awake() {
         // Singleton
         if (!instance) {
             instance = this;
@@ -15,14 +21,30 @@ public class Navigation : MonoBehaviour{
             instance = null;
             instance = this;
         }
+    }
 
+    private void Start() {
         // Get all waypoints
-        foreach (Transform xf in transform) {
-            var wp = xf.GetComponent<Waypoint>();
-            if (wp != null) {
-                _waypoints.Add(wp);
-            }
-        }
+        _waypoints = this
+            .GetComponentsInChildren<ConnectorWaypoints>()
+            .SelectMany(cw => cw.AllWaypoints)
+            .ToList();
+        OnWaypointsChanged();
+#if UNITY_EDITOR
+        Debug.Log(this, "Waypoints: " + _waypoints.Count);
+#endif
+    }
+
+    public IEnumerable<Item> AllInventories() {
+        return AllItems()
+            .Select(x => x.GetComponent<BaseAgent>())
+            .Where(x => x != null)
+            .Aggregate(FList.Create<Item>(), (a, x) => a + x.items);
+    }
+
+
+    public IEnumerable<Item> AllItems() {
+        return All().Aggregate(FList.Create<Item>(), (a, wp) => a += wp.nearbyItems);
     }
 
     public bool Reachable(Vector3 from, Vector3 to, List<Tuple<Vector3, Vector3>> debugRayList) {
@@ -59,7 +81,7 @@ public class Navigation : MonoBehaviour{
         var distance = delta.magnitude;
 
         return !Physics.Raycast(wp.transform.position, delta / distance, distance,
-            LayerMask.GetMask(new[] {"Blocking"}));
+            LayerMask.GetMask(new[] { "Blocking" }));
     }
 
     public IEnumerable<Waypoint> All() {
@@ -74,5 +96,9 @@ public class Navigation : MonoBehaviour{
                 return d.sqrMagnitude;
             })
             .First();
+    }
+
+    public void SubscribeWaypointsChange(Item item) {
+        OnWaypointsChanged += item.UpdateWaypoints;
     }
 }
