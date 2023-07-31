@@ -14,26 +14,32 @@ using ItemsConstants = Items.ItemConstants;
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(GridEntity))]
 [RequireComponent(typeof(MeshRenderer))]
+[RequireComponent(typeof(LineOfSight))]
 public abstract class BaseAgent : MonoBehaviour {
     protected TerrainChecker _terrainChecker;
     protected MeshRenderer _meshRenderer;
     protected float _life = 100;
-    public CircleQuerier radiusQuerier;
-    public GridEntity _gridEntity;
+    protected CircleQuerier radiusQuerier;
+    protected GridEntity _gridEntity;
     protected IEnumerable<GOAPActionDelegate> _goapPlan;
     protected List<Tuple<string, Item>> _plan = new List<Tuple<string, Item>>();
     protected int _securityStopWatch = 200;
     protected Item _target;
     protected List<Item> _items = new List<Item>();
     protected EventFSM<string> _fsm;
-
+    protected LineOfSight _lineOfSight;
     public IEnumerable<Item> items {
         get { return _items; }
+    }
+    
+    public virtual void AddItem(Item item) {
+        _items.Add(item);
     }
 
     protected abstract IEnumerable<GOAPActionDelegate> goapPlan { set; }
 
     public virtual EventFSM<string> fsm => _fsm;
+    public virtual LineOfSight lineOfSight => _lineOfSight;
 
     public virtual Item target {
         get {
@@ -42,6 +48,10 @@ public abstract class BaseAgent : MonoBehaviour {
         set {
             _target = value;
         }
+    }
+    
+    public void Feed(string state) {
+        _fsm.Feed(state);
     }
 
 
@@ -69,6 +79,11 @@ public abstract class BaseAgent : MonoBehaviour {
     protected virtual void Awake() {
         _meshRenderer = GetComponent<MeshRenderer>();
         _terrainChecker = GetComponentInChildren<TerrainChecker>();
+        _lineOfSight = GetComponentInChildren<LineOfSight>();
+        _gridEntity = GetComponent<GridEntity>();
+    }
+
+    protected void Start() {
     }
 
     public bool IsTerrain {

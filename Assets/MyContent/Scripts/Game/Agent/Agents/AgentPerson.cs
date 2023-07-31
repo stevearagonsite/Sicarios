@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using FP;
@@ -6,6 +7,7 @@ using FSM;
 using Items;
 using MyContent.Scripts;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(Item))]
 public class AgentPerson : BaseAgent{
@@ -16,11 +18,12 @@ public class AgentPerson : BaseAgent{
         Dead
     }
 
-    public ThinkDelegateDetective randomWalk = ThinkingDetective.RandomWalk;
+    public Action<BaseAgent> randomWalk = ThinkingAgent.RandomWalk;
     private Coroutine _coroutine;
     private EventFSM<PersonActions> _fsm;
 
     private void Start() {
+        base.Start();
         _meshRenderer.material.color = Consts.AGENT_PERSON_COLOR;
         gameObject.name = "Person";
         var item = GetComponent<Item>();

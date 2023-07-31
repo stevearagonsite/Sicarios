@@ -6,12 +6,13 @@ namespace Items {
     {
         public string type = "With out type";
         Waypoint _wp;
-        bool insideInventory;
+        bool _insideInventory;
+        public bool insideInventory { get { return _insideInventory; } }
     
-        public void OnInventoryAdd()
+        public void OnInventoryAdd(BaseAgent agent)
         {
-            Destroy(GetComponent<Rigidbody>());
-            insideInventory = true;
+            agent.AddItem(this);
+            _insideInventory = true;
             if(_wp)
                 _wp.nearbyItems.Remove(this);
         }
@@ -19,7 +20,7 @@ namespace Items {
         public void OnInventoryRemove()
         {
             gameObject.AddComponent<Rigidbody>();
-            insideInventory = false;
+            _insideInventory = false;
         }
     
         private void Start () {
@@ -50,7 +51,7 @@ namespace Items {
 
         // Update is called once per frame
         private void Update () {
-            if (insideInventory) return;
+            if (_insideInventory) return;
             _wp.nearbyItems.Remove(this);
             _wp = Navigation.instance.NearestTo(transform.position);
             _wp.nearbyItems.Add(this);

@@ -14,5 +14,6 @@ public partial class AgentSicario : BaseAgent{
         base.Awake();
         _meshRenderer.material.color = Consts.AGENT_SICARIO_COLOR;
         gameObject.name = "Sicario";
+        MovementSpeed = Consts.AGENT_MAX_MOVEMENT_SPEED;
     }
 }

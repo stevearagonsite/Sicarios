@@ -47,18 +47,30 @@ public class LoggerSetupEditor : Editor
             EditorGUILayout.EndHorizontal();
         }
 
-        if (GUILayout.Button("Add new entry"))
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Add new entry", GUILayout.Width(EditorGUIUtility.currentViewWidth * 0.5f)))
         {
             proxy.keys.Add("");
             proxy.values.Add(false);
         }
-
+        if (GUILayout.Button("Remove last entry", GUILayout.Width(EditorGUIUtility.currentViewWidth * 0.5f)))
+        {
+            proxy.keys.RemoveAt(proxy.keys.Count - 1);
+        }
+        EditorGUILayout.EndHorizontal();
         EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("Turn all off")) {
+        if (GUILayout.Button("Turn ON all", GUILayout.Width(EditorGUIUtility.currentViewWidth * 0.5f))) {
+            for (int i = proxy.values.Count - 1; i >= 0; i--) {
+                proxy.values[i] = true;
+            }
+        }
+        if (GUILayout.Button("Turn OFF all", GUILayout.Width(EditorGUIUtility.currentViewWidth * 0.5f))) {
             for (int i = proxy.values.Count - 1; i >= 0; i--) {
                 proxy.values[i] = false;
             }
         }
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("Remove all")) {
             proxy.keys.Clear();
             proxy.values.Clear();

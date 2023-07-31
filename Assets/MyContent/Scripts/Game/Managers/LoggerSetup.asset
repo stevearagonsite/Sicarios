@@ -14,8 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   keys:
   - Navigation
+  - StateIdle
+  - StatePursuit
+  - StateKill
+  - StateGoTo
   - Agent State AddExecutionsByState
   - GOAP
   - GOAP planner
   - StatePlanStep
-  values: 0000000000
+  - ThinkingAgent Count
+  - InSight
+  - Sicario State
+  values: 010101010101010101010101

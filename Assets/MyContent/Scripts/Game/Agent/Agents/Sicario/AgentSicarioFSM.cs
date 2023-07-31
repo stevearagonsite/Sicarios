@@ -13,6 +13,7 @@ public partial class AgentSicario {
     #region monobehaviour
 
     private void Start() {
+        base.Start();
         CreateAgentExecutionStates();
         FSMStates();
 
@@ -20,38 +21,23 @@ public partial class AgentSicario {
         StartCoroutine(GoapRunDelegate(from, to, actions));
         _fsm = new EventFSM<string>(_agentStates[AgentConstants.IDLE]);
         _fsm.Feed(AgentConstants.IDLE);
-        // StartCoroutine(SicarioDecisions(1f));
     }
 
     private void Update() {
         _fsm.Update();
     }
 
-    // public virtual IEnumerator SicarioDecisions(float time) {
-    //     while (true) {
-    //         _fsm.Feed(AgentConstants.IDLE);
-    //         if (_goapPlan != null) {
-    //             GOAPActionDelegate action = _goapPlan.First();
-    //         }
-    //
-    //         yield return new WaitForSeconds(time);
-    //     }
-    // }
-
     #endregion #monobehaviour
 
     private void CreateAgentExecutionStates() {
         _agentExecutionStates = new Dictionary<string, IState>() {
             [AgentConstants.IDLE] = gameObject.AddComponent<StateIdle>().SetValues(AgentConstants.IDLE, this),
-            [AgentConstants.PURSUIT] = new StatePursuit(AgentConstants.PURSUIT, this),
+            [AgentConstants.PURSUIT] = gameObject.AddComponent<StatePursuit>().SetValues(AgentConstants.PURSUIT, this),
             [AgentConstants.EVADE] = new StateEvade(AgentConstants.EVADE, this),
-            [AgentConstants.KILL] = new StateKill(AgentConstants.KILL, this),
+            [AgentConstants.KILL] = gameObject.AddComponent<StateKill>().SetValues(AgentConstants.KILL, this),
             [AgentConstants.DEAD] = new StateDead(AgentConstants.DEAD, this),
             [AgentConstants.GO_TO] =  gameObject.AddComponent<StateGoTo>().SetValues(AgentConstants.GO_TO, this),
             [AgentConstants.PICK_UP] = new StatePickUp(AgentConstants.PICK_UP, this),
-            // [AgentConstants.PLAN_STEP] = null,
-            // [AgentConstants.PLAN_FAIL] = null,
-            // [AgentConstants.PLAN_SUCCESS] = null,
             [AgentConstants.PLAN_STEP] = new StatePlanStep(AgentConstants.PLAN_STEP, this),
             [AgentConstants.PLAN_FAIL] = new StatePlanFail(AgentConstants.PLAN_FAIL, this),
             [AgentConstants.PLAN_SUCCESS] = new StatePlanSuccess(AgentConstants.PLAN_SUCCESS, this)

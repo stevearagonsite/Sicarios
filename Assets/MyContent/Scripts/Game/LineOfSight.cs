@@ -23,27 +23,18 @@ public class LineOfSight : MonoBehaviour {
 		layerMask = (1 << wallLayer);
 	}
 
-	void Execute () {
-		// Primero calculamos que cumpla con los requisitos de distancia y ángulo.
-		// Es decir, que este dentro del campo de visión sin contar obstáculos.
-
-		// Siempre la dirección desde un punto a otro es: Posición Final - Posición Inicial
+	void Update () {
+		if (target == null) return;
 		var dirToTarget = target.transform.position - transform.position; 
         
-		// Vector3.Angle nos da el ángulo entre dos direcciones
 		var angleToTarget = Vector3.Angle(transform.forward, dirToTarget);
-
-		// Vector3.Distance nos da la distancia entre dos posiciones
 		var sqrDistanceToTarget = (transform.position - target.transform.position).sqrMagnitude;
 
 		RaycastHit rch;
 
 		targetInSight = 
-			// Verifica el angulo de vision
 			angleToTarget <= viewAngle &&
-			// Verifica la distancia de vision
 			sqrDistanceToTarget <= viewDistance * viewDistance &&
-			// Verifica si hay obstaculos en el medio
 			!Physics.Raycast(
 				transform.position,
 				dirToTarget,
@@ -52,4 +43,29 @@ public class LineOfSight : MonoBehaviour {
 				layerMask
 			);
 	}
+	
+	void OnDrawGizmosSelected() {
+		if (target != null) {
+			Gizmos.color = Color.green;
+			Gizmos.DrawLine(transform.position, target.transform.position);
+		}
+		
+		Gizmos.color = Color.yellow;
+		Gizmos.DrawWireSphere(transform.position, viewDistance);
+    
+		Vector3 viewAngleA = DirectionFromAngle(-viewAngle / 2, false);
+		Vector3 viewAngleB = DirectionFromAngle(viewAngle / 2, false);
+    
+		Gizmos.DrawLine(transform.position, transform.position + viewAngleA * viewDistance);
+		Gizmos.DrawLine(transform.position, transform.position + viewAngleB * viewDistance);
+	}
+
+	Vector3 DirectionFromAngle(float angleInDegrees, bool angleIsGlobal) {
+		if (!angleIsGlobal) {
+			angleInDegrees += transform.eulerAngles.y;
+		}
+    
+		return new Vector3(Mathf.Sin(angleInDegrees * Mathf.Deg2Rad), 0, Mathf.Cos(angleInDegrees * Mathf.Deg2Rad));
+	}
+
 }

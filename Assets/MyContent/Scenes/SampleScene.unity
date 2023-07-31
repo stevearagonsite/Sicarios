@@ -717,7 +717,7 @@ MonoBehaviour:
     type: 3}
   quantitySicarios: 1
   quantityPersons: 60
-  quantityDetective: 4
+  quantityDetective: 3
   quantityTarget: 1
   locations:
   - {fileID: 1239148612}
@@ -743,7 +743,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh20798
+  m_Name: pb_Mesh20868
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -6602,7 +6602,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh20674
+  m_Name: pb_Mesh20734
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -6784,7 +6784,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh21216
+  m_Name: pb_Mesh21306
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -12281,7 +12281,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh20954
+  m_Name: pb_Mesh21040
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2

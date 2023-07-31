@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using FSM;
@@ -16,7 +17,7 @@ public class AgentDetective : BaseAgent{
         Kill,
     }
 
-    public ThinkDelegateDetective randomWalk = ThinkingDetective.RandomWalk;
+    public Action<BaseAgent> randomWalk = ThinkingAgent.RandomWalk;
     Stack<Waypoint> _seach = new Stack<Waypoint>();
     private Coroutine _coroutine;
     private EventFSM<DetectiveActions> _fsm;
@@ -26,6 +27,7 @@ public class AgentDetective : BaseAgent{
     private Waypoint _toVisit;
 
     private void Start() {
+        base.Start();
         _meshRenderer.material.color = Consts.AGENT_DETECTIVE_COLOR;
         gameObject.name = "Detective";
         var item = GetComponent<Item>();

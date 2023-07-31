@@ -1,11 +1,13 @@
 using System;
 using System.Collections;
 using FSM;
+using MyContent.Scripts;
 using UnityEngine;
 using Random = UnityEngine.Random;
+using Debug = Logger.Debug;
 
 public class StateIdle : MonoBehaviour, IState {
-    public ThinkDelegatePerson randomWalk = ThinkingPerson.RandomWalk;
+    public Action<BaseAgent> randomWalk = ThinkingAgent.RandomWalk;
 
     private string _name;
     private BaseAgent _agent;
@@ -13,8 +15,11 @@ public class StateIdle : MonoBehaviour, IState {
     
     public string name => _name;
 
-    public StateIdle SetValues(string name, BaseAgent agent) {
-        this._name = name;
+    public IState SetValues(string name, BaseAgent agent) {
+#if UNITY_EDITOR
+        Debug.LogColor(this, $"SetValues: {name}", "yellow");
+#endif
+        _name = name;
         _agent = agent;
         
         return this;
@@ -23,6 +28,9 @@ public class StateIdle : MonoBehaviour, IState {
     #region IState
 
     public void OnEnter() {
+#if UNITY_EDITOR
+        Debug.LogColor(this, "OnEnter", "yellow");
+#endif
         OnRandomMove();
     }
 
@@ -31,16 +39,16 @@ public class StateIdle : MonoBehaviour, IState {
     }
 
     public void OnExit() {
+#if UNITY_EDITOR
+        Debug.LogColor(this, "OnExit", "yellow");
+#endif
         OffRandomMove();
+        _agent.MovementSpeed = Consts.AGENT_MAX_MOVEMENT_SPEED;
     }
     
     #endregion IState
     
     public void WalkForward() {
-        if (_agent.IsTerrain) {
-            return;
-        }
-
         _agent.transform.position += transform.forward * Time.deltaTime * _agent.MovementSpeed;
     }
 

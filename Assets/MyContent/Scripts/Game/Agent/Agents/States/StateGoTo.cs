@@ -6,41 +6,65 @@ using FP;
 using FSM;
 using Items;
 using UnityEngine;
+using Debug = Logger.Debug;
+using AgentSicarioStates = AgentSicarioConstants.AgentSicarioStates;
 
+[RequireComponent(typeof(Rigidbody))]
 public class StateGoTo : MonoBehaviour, IState {
     private string _name;
     private BaseAgent _agent;
     private Coroutine _coroutine;
     Vector3 _vel;
+    private Rigidbody _rb;
 
-    Waypoint _gizmoRealTarget;
-    IEnumerable<Waypoint> _gizmoPath;
+    private Waypoint _gizmoRealTarget;
+    private IEnumerable<Waypoint> _gizmoPath;
     public event Action<BaseAgent, Waypoint, bool> OnReachDestination = delegate { };
 
     public string name => _name;
 
-    public StateGoTo SetValues(string name, BaseAgent agent) {
-        this._name = name;
-        _agent = agent;
+    public void Start() {
+        _rb = GetComponent<Rigidbody>();
         OnReachDestination += (a, w, b) => {
-            if (b) {
-                throw new NotImplementedException();
-                // _agent.fsm.Feed(AgentSicarioStates.PickUp);
-            }
+#if UNITY_EDITOR
+            Debug.LogColor(this, $"OnReachDestination: {w.name} {b}", "yellow");
+#endif
+            if (!b) return;
+            _agent.target.OnInventoryAdd(_agent);
+            _agent.Feed(AgentSicarioStates.PLAN_STEP);
         };
+    }
+
+    public IState SetValues(string name, BaseAgent agent) {
+#if UNITY_EDITOR
+        Debug.LogColor(this, $"SetValues: {name}", "yellow");
+#endif
+        _name = name;
+        _agent = agent;
 
         return this;
     }
 
     public void OnEnter() {
+#if UNITY_EDITOR
+        Debug.LogColor(this, "OnEnter", "yellow");
+#endif
         OnNavigateMove();
     }
 
     public void OnUpdate() {
-        // throw new NotImplementedException();
+        _rb.MovePosition(transform.position + Time.fixedDeltaTime * _vel * 10);
+        
+        if (_vel != Vector3.zero) {
+            Quaternion rotation = Quaternion.LookRotation(_vel);
+            _rb.rotation = Quaternion.Slerp(_rb.rotation, rotation, Time.fixedDeltaTime * 5);
+        }
     }
 
     public void OnExit() {
+#if UNITY_EDITOR
+        Debug.LogColor(this, "OnExit", "yellow");
+#endif
         OffNavigateMove();
     }
 
@@ -49,6 +73,7 @@ public class StateGoTo : MonoBehaviour, IState {
     }
 
     private void OffNavigateMove() {
+        if (_coroutine == null) return; 
         StopCoroutine(_coroutine);
     }
 
@@ -84,9 +109,9 @@ public class StateGoTo : MonoBehaviour, IState {
                                 Vector3.Distance(a.transform.position, w.transform.position)))
             );
             if (path != null) {
-                Debug.Log("COUNT" + path.Count());
+                Debug.Log(this, "COUNT" + path.Count());
                 foreach (var next in path.Select(w => FloorPos(w))) {
-                    Debug.Log("NEXT " + next.ToString());
+                    Debug.Log(this, "NEXT " + next.ToString());
 
                     while ((next - FloorPos(this)).sqrMagnitude >= 0.05f) {
                         _vel = (next - FloorPos(this)).normalized;
@@ -100,13 +125,14 @@ public class StateGoTo : MonoBehaviour, IState {
             reachedDst = path.Last();
         }
 
-        if (reachedDst == dstWp) {
+        var distance = Vector3.Distance(reachedDst.transform.position, dstWp.transform.position);
+        if (distance > 0.05f ) {
             _vel = (FloorPos(destination) - FloorPos(this)).normalized;
             yield return new WaitUntil(() => (FloorPos(destination) - FloorPos(this)).sqrMagnitude < 0.05f);
         }
 
         _vel = Vector3.zero;
-        OnReachDestination(_agent, reachedDst, reachedDst == dstWp);
+        OnReachDestination(_agent, reachedDst, distance <= 0.05f);
     }
 
     void OnDrawGizmos() {
@@ -117,7 +143,7 @@ public class StateGoTo : MonoBehaviour, IState {
         var points = _gizmoPath.Select(w => FloorPos(w));
         Vector3 last = points.First();
         foreach (var p in points.Skip(1)) {
-            Gizmos.DrawLine(p + Vector3.up, last + Vector3.up);
+            Gizmos.DrawLine(p + Vector3.up * 2f, last + Vector3.up * 2f);
             last = p;
         }
 

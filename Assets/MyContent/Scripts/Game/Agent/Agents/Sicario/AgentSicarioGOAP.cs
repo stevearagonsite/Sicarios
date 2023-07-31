@@ -127,7 +127,6 @@ public partial class AgentSicario {
 
     protected override IEnumerable<GOAPActionDelegate> goapPlan {
         set {
-
             var everything = Navigation.instance.AllItems().Union(Navigation.instance.AllInventories());
             _goapPlan = value;
             var plan = _goapPlan
@@ -143,7 +142,8 @@ public partial class AgentSicario {
                         Debug.LogColor("GOAP planner", "action: " + actionName, "red");
                         Debug.LogColor("GOAP planner", "everything count: " + everything.Count(), "red");
                         Debug.LogColor("GOAP planner",
-                            "condition actionToItem: " + Dictionaries.ActionToItem.Any(kv => actionName == kv.Key), "red");
+                            "condition actionToItem: " + Dictionaries.ActionToItem.Any(kv => actionName == kv.Key),
+                            "red");
                         var firstItem = Dictionaries.ActionToItem.First(kv => actionName == kv.Key);
                         Debug.LogColor("GOAP planner", "item FIRST: " + firstItem.Key + " " + firstItem.Value, "red");
                         Debug.LogError("GOAP planner");
@@ -161,10 +161,15 @@ public partial class AgentSicario {
                 }).Where(a => a != null)
                 .ToList();
 #if UNITY_EDITOR
-            Debug.Log("GOAP planner", "GoapPlan: " + string.Join(", ", _goapPlan.Select(pa => pa.name)));
-            Debug.Log("GOAP planner",
-                "Plan: " + string.Join(", ",
-                    plan.Select(pa => plan.IndexOf(pa) + ": " + pa.Item1 + " " + pa.Item2.name).ToArray()));
+            Debug.Log("GOAP planner", "GoapPlan: " + string.Join(", ",
+                    _goapPlan.Select(pa => pa.name)
+                )
+            );
+            Debug.Log("GOAP planner", "Plan: \n" + string.Join(", ",
+                    plan.Select(pa => $"{plan.IndexOf(pa)} {pa.Item1} ({pa.Item2.type}/{pa.Item2.name})")
+                        .ToArray()
+                )
+            );
 #endif
             ExecutePlan(plan);
         }

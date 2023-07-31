@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using Debug = Logger.Debug;
 
 public delegate bool InSightDelegate(Transform a , Transform b, float va , float vd);
 
@@ -33,11 +34,13 @@ public static class TargetInSight
         //que el angulo y la distancia de la vision, el objetivo esta a la vista.
         if (_angleToTarget <= va && _distanceToTarget <= vd && !obstaclesBetween)
         {
+            Debug.Log("InSight", $"Target True: {b.name}");
             //Vemos al enemigo
             return  true;
         }
         else
         {
+            Debug.Log("InSight", $"Target False: {b.name}");
             //Debug.Log("Clear...");	//No vemos al enemigo
             return  false;
         }

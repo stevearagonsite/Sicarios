@@ -191,7 +191,7 @@ public class Grid : MonoBehaviour {
 				var offset = Vector3.up * 3.0f;
 				foreach(var te in pairs) {
 					Gizmos.DrawLine(te.Item1.transform.position+offset, te.Item2.transform.position+offset);
-					Gizmos.DrawCube(te.Item1.transform.position+offset, Vector3.one);
+					Gizmos.DrawCube(te.Item1.transform.position+offset, Vector3.one / 3);
 				}			
 			}
 		}

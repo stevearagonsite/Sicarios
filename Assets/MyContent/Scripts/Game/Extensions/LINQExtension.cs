@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Items;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 using Debug = Logger.Debug;
@@ -31,6 +32,14 @@ namespace LINQExtension {
 
     public static class DebugExtension {
         public static IEnumerable<BaseAgent> Log(this IEnumerable<BaseAgent> source, Action<BaseAgent> predicate) {
+            foreach (var item in source) {
+                predicate(item);
+            }
+
+            return source;
+        }
+        
+        public static IEnumerable<Item> Log(this IEnumerable<Item> source, Action<Item> predicate) {
             foreach (var item in source) {
                 predicate(item);
             }
